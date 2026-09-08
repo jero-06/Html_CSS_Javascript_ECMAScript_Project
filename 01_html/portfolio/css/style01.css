@@ -11,7 +11,9 @@ font-family: sans-serif;
 
 .header {
     display: flex;
+    /* 주요축의 정렬 */
     justify-content: space-between;
+    /*
     align-items: center;
     padding: 20px 50px;
     background-color: #333;
