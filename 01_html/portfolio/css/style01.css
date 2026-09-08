@@ -1,11 +1,12 @@
 * {
-      margin: 0;
-      padding: 0;
-box-sizing: border-box;   /* 아래 설명 참고 */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* 아래 설명 참고 */
 }
- 
+
 body {
-font-family: sans-serif;
+    font-family: sans-serif;
     background-color: #f4f4f4;
 }
 
@@ -13,7 +14,7 @@ font-family: sans-serif;
     display: flex;
     /* 주요축의 정렬 */
     justify-content: space-between;
-    /*
+    /* 교차축의 정렬 */
     align-items: center;
     padding: 20px 50px;
     background-color: #333;
