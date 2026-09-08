@@ -1,0 +1,19 @@
+* {
+      margin: 0;
+      padding: 0;
+box-sizing: border-box;   /* 아래 설명 참고 */
+}
+ 
+body {
+font-family: sans-serif;
+    background-color: #f4f4f4;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #333;
+    color: white;
+}
