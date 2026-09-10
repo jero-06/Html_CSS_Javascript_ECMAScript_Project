@@ -50,22 +50,39 @@ function createStudent(studentData) {
 }
 
 // 학생 목록 로드 함수
-function loadStudents() {
+function loadStudents_then() {
   console.log("학생 목록 로드 중...");
+  // Promise 객체 반환
   fetch(`${API_BASE_URL}/api/students`)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("학생 목록을 불러오는데 실패했습니다.");
-            }
-            return response.json();
-        })
-        .then((students) => {
-            renderStudentTable(students);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            alert("학생 목록을 불러오는데 실패했습니다.");
-        });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("학생 목록을 불러오는데 실패했습니다.");
+      }
+      return response.json();
+    })
+    .then((students) => {
+      console.log(students);
+      // renderStudentTable(students);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("학생 목록을 불러오는데 실패했습니다.");
+    });
+}
+// async/await를 사용한 학생 목록 로드 함수
+async function loadStudentsAsync() {
+  console.log("학생 목록 로드 중...");
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/students`);
+    if (!response.ok) {
+      throw new Error("학생 목록을 불러오는데 실패했습니다.");
+    }
+    const students = await response.json();
+    console.log(students);
+    // renderStudentTable(students);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
 // 학생 데이터 유효성 검사
@@ -84,14 +101,20 @@ function validateStudent(student) {
 
   // 전화번호 형식 검사
   const phonePattern = /^[0-9-\s]+$/;
-  if (!student.detailRequest.phoneNumber || !phonePattern.test(student.detailRequest.phoneNumber)) {
+  if (
+    !student.detailRequest.phoneNumber ||
+    !phonePattern.test(student.detailRequest.phoneNumber)
+  ) {
     alert("전화번호를 입력하지 않거나 올바른 전화번호 형식이 아닙니다.");
     return false;
   }
 
   // 이메일 형식 검사 (입력된 경우에만)
-  if (!student.detailRequest.email || !isValidEmail(student.detailRequest.email)) {
-        alert("이메일를 입력하지 않거나 올바른 이메일 형식이 아닙니다.");
+  if (
+    !student.detailRequest.email ||
+    !isValidEmail(student.detailRequest.email)
+  ) {
+    alert("이메일를 입력하지 않거나 올바른 이메일 형식이 아닙니다.");
     return false;
   }
 
