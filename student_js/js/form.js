@@ -12,79 +12,103 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // 폼 제출 이벤트 핸들러
 studentForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const formData = new FormData(studentForm);
-    
-    // console.log(Object.fromEntries(formData));
+  e.preventDefault();
+  const formData = new FormData(studentForm);
 
-    // console.log("entries()")
-    // for (const [key, value] of formData.entries()) {
-    //     console.log(key, "=", value);
-    // }
+  // console.log(Object.fromEntries(formData));
 
-    const studentData = {
-        name: formData.get("name").trim(),
-        studentNumber: formData.get("studentNumber").trim(),
-        detailRequest: {
-            address: formData.get("address").trim(),
-            phoneNumber: formData.get("phoneNumber").trim(),
-            email: formData.get("email").trim() || null,
-            dateOfBirth: formData.get("dateOfBirth") || null,
-        },
-    };
-    console.log(studentData);
+  // console.log("entries()")
+  // for (const [key, value] of formData.entries()) {
+  //     console.log(key, "=", value);
+  // }
 
+  const studentData = {
+    name: formData.get("name").trim(),
+    studentNumber: formData.get("studentNumber").trim(),
+    detailRequest: {
+      address: formData.get("address").trim(),
+      phoneNumber: formData.get("phoneNumber").trim(),
+      email: formData.get("email").trim() || null,
+      dateOfBirth: formData.get("dateOfBirth") || null,
+    },
+  };
+  console.log(studentData);
+
+  // 유효성 검사
+  if (!validateStudent(studentData)) {
+    return;
+  }
+  console.log("유효한 데이터:", studentData);
+
+  // 서버로 데이터 전송
+  createStudent(studentData);
 });
+
+// 학생 등록 함수
+function createStudent(studentData) {
+  console.log("학생 등록 중...");
+}
 
 // 학생 목록 로드 함수
 function loadStudents() {
   console.log("학생 목록 로드 중...");
-  }
+}
 
 // 학생 데이터 유효성 검사
 function validateStudent(student) {
-    // 필수 필드 검사
-    if (!student.name) {
-        alert("이름을 입력해주세요.");
-        return false;
-    }
+  // 필수 필드 검사
+  if (!student.name) {
+    alert("이름을 입력해주세요.");
+    return false;
+  }
 
-    if (!student.studentNumber) {
-        alert("학번을 입력해주세요.");
-        return false;
-    }
+  if (!student.studentNumber) {
+    alert("학번을 입력해주세요.");
+    return false;
+  }
 
-    if (!student.detailRequest.phoneNumber) {
-        alert("전화번호를 입력해주세요.");
-        return false;
-    }
+  if (!student.detailRequest.phoneNumber) {
+    alert("전화번호를 입력해주세요.");
+    return false;
+  }
 
-    // 학번 형식 검사 (예: 영문과 숫자 조합)
-    const studentNumberPattern = /^[A-Za-z0-9]+$/;
-    if (!studentNumberPattern.test(student.studentNumber)) {
-        alert("학번은 영문과 숫자만 입력 가능합니다.");
-        return false;
-    }
+  // // 학번 형식 검사 (예: 영문과 숫자 조합)
+  // const studentNumberPattern = /^[A-Za-z0-9]+$/;
+  // if (!studentNumberPattern.test(student.studentNumber)) {
+  //   alert("학번은 영문과 숫자만 입력 가능합니다.");
+  //   return false;
+  // }
+  if (student.studentNumber && !isValidStudentNumber(student.studentNumber)) {
+    alert("올바른 학번 형식이 아닙니다.");
+    return false;
+  }
 
-    // 전화번호 형식 검사
-    const phonePattern = /^[0-9-\s]+$/;
-    if (!phonePattern.test(student.detailRequest.phoneNumber)) {
-        alert("올바른 전화번호 형식이 아닙니다.");
-        return false;
-    }
+  // 전화번호 형식 검사
+  const phonePattern = /^[0-9-\s]+$/;
+  if (!phonePattern.test(student.detailRequest.phoneNumber)) {
+    alert("올바른 전화번호 형식이 아닙니다.");
+    return false;
+  }
 
-    // 이메일 형식 검사 (입력된 경우에만)
-    if (student.detailRequest.email && !isValidEmail(student.detailRequest.email)) {
-        alert("올바른 이메일 형식이 아닙니다.");
-        return false;
-    }
+  // 이메일 형식 검사 (입력된 경우에만)
+  if (
+    student.detailRequest.email &&
+    !isValidEmail(student.detailRequest.email)
+  ) {
+    alert("올바른 이메일 형식이 아닙니다.");
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 // 이메일 유효성 검사
 function isValidEmail(email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email);
 }
-
+// 학번 유효성 검사
+function isValidStudentNumber(studentNumber) {
+  const studentNumberPattern = /^[A-Za-z0-9]+$/;
+  return studentNumberPattern.test(studentNumber);
+}
