@@ -44,9 +44,70 @@ studentForm.addEventListener("submit", function (e) {
   createStudent(studentData);
 });
 
+// async/await 사용한 학생 등록 함수
+async function createStudent(studentData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/students`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(studentData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const defaultMsg =
+        response.status === 409
+          ? "이미 등록된 학번입니다."
+          : "학생 등록에 실패했습니다.";
+      throw new Error(data.message || defaultMsg);
+    }
+
+    alert("학생이 성공적으로 등록되었습니다.");
+    studentForm.reset();
+    loadStudents();
+    return data;
+  } catch (error) {
+    console.error("Error:", error.message);
+    alert(error.message);
+  }
+}
+
 // 학생 등록 함수
-function createStudent(studentData) {
+function createStudent_then(studentData) {
   console.log("학생 등록 중...");
+  fetch(`${API_BASE_URL}/api/students`, {
+    method: "POST", // (1) 무엇을 할 것인가
+    headers: {
+      "Content-Type": "application/json", // (2) 어떤 형식인가
+    },
+    body: JSON.stringify(studentData), // (3) 무엇을 보내는가
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        // 응답 본문을 읽어서 에러 메시지 추출
+        const errorData = await response.json();
+
+        // 상태 코드와 메시지에 따라 에러 처리
+        if (response.status === 409) {
+          // 중복 오류 처리
+          throw new Error(errorData.message || "이미 등록된 학번입니다.");
+        } else {
+          // 기타 오류 처리
+          throw new Error(errorData.message || "학생 등록에 실패했습니다.");
+        }
+      }
+      return response.json();
+    })
+    .then((result) => {
+      alert("학생이 성공적으로 등록되었습니다.");
+      studentForm.reset(); // 폼 비우기
+      loadStudents(); // 목록 새로고침
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      alert(error.message); // 서버가 보낸 실제 메시지 표시
+    });
 }
 
 // 학생 목록 로드 함수
@@ -74,8 +135,7 @@ async function loadStudents() {
   console.log("학생 목록 로드 중...");
   try {
     const response = await fetch(`${API_BASE_URL}/api/students`);
-    if (!response.ok)
-      throw new Error("학생 목록을 불러오는데 실패했습니다.");
+    if (!response.ok) throw new Error("학생 목록을 불러오는데 실패했습니다.");
 
     const students = await response.json();
     renderStudentTable(students);
@@ -86,12 +146,13 @@ async function loadStudents() {
 }
 
 function renderStudentTable(students) {
-    studentTableBody.innerHTML = "";
+  studentTableBody.innerHTML = "";
 
-    students.forEach((student) => {
-        const row = document.createElement("tr");
+  students.forEach((student) => {
+    const row = document.createElement("tr");
 
-        row.innerHTML = `
+    // ${student.detail ? student.detail.address || "-" : "-"}
+    row.innerHTML = `
                     <td>${student.name}</td>
                     <td>${student.studentNumber}</td>
                     <td>${student.detail?.address ?? "-"}</td>
@@ -104,8 +165,8 @@ function renderStudentTable(students) {
                     </td>
                 `;
 
-        studentTableBody.appendChild(row);
-    });
+    studentTableBody.appendChild(row);
+  });
 }
 
 // 학생 데이터 유효성 검사
