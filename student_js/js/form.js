@@ -70,19 +70,42 @@ function loadStudents_then() {
     });
 }
 // async/await를 사용한 학생 목록 로드 함수
-async function loadStudentsAsync() {
+async function loadStudents() {
   console.log("학생 목록 로드 중...");
   try {
     const response = await fetch(`${API_BASE_URL}/api/students`);
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error("학생 목록을 불러오는데 실패했습니다.");
-    }
+
     const students = await response.json();
-    console.log(students);
-    // renderStudentTable(students);
+    renderStudentTable(students);
   } catch (error) {
     console.error("Error:", error);
+    alert(error.message);
   }
+}
+
+function renderStudentTable(students) {
+    studentTableBody.innerHTML = "";
+
+    students.forEach((student) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.studentNumber}</td>
+                    <td>${student.detail ? student.detail.address : "-"}</td>
+                    <td>${student.detail ? student.detail.phoneNumber : "-"}</td>
+                    <td>${student.detail ? student.detail.email || "-" : "-"}</td>
+                    <td>${student.detail ? student.detail.dateOfBirth || "-" : "-"}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editStudent(${student.id})">수정</button>
+                        <button class="delete-btn" onclick="deleteStudent(${student.id})">삭제</button>
+                    </td>
+                `;
+
+        studentTableBody.appendChild(row);
+    });
 }
 
 // 학생 데이터 유효성 검사
