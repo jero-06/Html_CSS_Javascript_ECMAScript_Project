@@ -136,13 +136,11 @@ async function deleteStudent(studentId) {
       throw new Error(data.message || defaultMsg);
     }
 
-    alert("학생이 성공적으로 삭제되었습니다.");
-    //showSuccess('학생이 성공적으로 삭제되었습니다.');
+    showSuccess('학생이 성공적으로 삭제되었습니다.');
     loadStudents(); // 목록 새로고침
   } catch (error) {
     console.error("Error:", error);
-    //showError(error.message);
-    alert(error.message);
+    showError(error.message);
   }
 }
 
