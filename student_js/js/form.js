@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
 // 폼 제출 이벤트 핸들러
 studentForm.addEventListener("submit", function (e) {
   e.preventDefault();
+  // document.getElementById("name")는 HTMLElemnt 객체
+  // const name = document.getElementById("name").value.trim();
   const formData = new FormData(studentForm);
 
   // console.log(Object.fromEntries(formData));
@@ -22,11 +24,12 @@ studentForm.addEventListener("submit", function (e) {
   //     console.log(key, "=", value);
   // }
 
+  // FormData에 저장된 값을 추출하여 서버로 전송할 중첩된 객체 생성
   const studentData = {
     name: formData.get("name").trim(),
     studentNumber: formData.get("studentNumber").trim(),
     detailRequest: {
-      address: formData.get("address").trim(),
+      address: formData.get("address").trim() || null,
       phoneNumber: formData.get("phoneNumber").trim(),
       email: formData.get("email").trim() || null,
       dateOfBirth: formData.get("dateOfBirth") || null,
@@ -60,6 +63,7 @@ async function createStudent(studentData) {
         response.status === 409
           ? "이미 등록된 학번입니다."
           : "학생 등록에 실패했습니다.";
+      // response.json()으로 받은 객체가 백엔드에서는 ErrorObject
       throw new Error(data.message || defaultMsg);
     }
 
@@ -69,6 +73,7 @@ async function createStudent(studentData) {
     return data;
   } catch (error) {
     console.error("Error:", error.message);
+    studentForm.reset();
     alert(error.message);
   }
 }
@@ -119,6 +124,7 @@ function loadStudents_then() {
       if (!response.ok) {
         throw new Error("학생 목록을 불러오는데 실패했습니다.");
       }
+      // JSON.parse()
       return response.json();
     })
     .then((students) => {
@@ -210,7 +216,7 @@ function isValidEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 }
-// 학번 유효성 검사
+// 학번 유효성 검사 CS001, cs001
 function isValidStudentNumber(studentNumber) {
   const studentNumberPattern = /^[A-Za-z0-9]+$/;
   return studentNumberPattern.test(studentNumber);
