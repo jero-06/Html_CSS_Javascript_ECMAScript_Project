@@ -1,3 +1,4 @@
+import { showSuccess } from "../../04_es6/step/4-9_message";
 // 전역 변수
 const API_BASE_URL = "http://localhost:8080";
 
@@ -79,29 +80,30 @@ async function createStudent(studentData) {
 }
 
 // 학생 삭제 함수
-function deleteStudent(studentId) {
-  if (!confirm("정말로 이 학생을 삭제하시겠습니까?")) {
-    return; // 취소를 누르면 아무 일도 하지 않음
-  }
+async function deleteStudent(studentId) {
+    if (!confirm('정말로 이 학생을 삭제하시겠습니까?')) return;
+    
+    try {
+        const response = fetch(`${API_BASE_URL}/api/students/${studentId}`, {
+            method: 'DELETE'
+        });
 
-  fetch(`${API_BASE_URL}/api/students/${studentId}`, {
-    method: "DELETE",
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        if (response.status === 404) {
-          throw new Error(errorData.message || "존재하지 않는 학생입니다.");
+        // 응답 본문을  읽어오기
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const defaultMsg = response.status === 404 ? "존재하지 않는 학생입니다.":"학생 삭제에 실패했습니다.";
+            throw new Error(data.message || defaultMsg)
         }
-      }
-      alert("학생이 성공적으로 삭제되었습니다.");
-      loadStudents(); // 목록 새로고침
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert(error.message);
-    });
+
+        alert('학생이 성공적으로 삭제되었습니다.')
+        //showSuccess('학생이 성공적으로 삭제되었습니다.');
+        loadStudents(); // 목록 새로고침
+    } catch(error) {
+        console.error('Error:', error);
+        //showError(error.message);
+        alert(error.message)
+    }
 }
 
 // 학생 등록 함수
