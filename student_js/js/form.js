@@ -97,6 +97,11 @@ studentForm.addEventListener("submit", function (e) {
   }
 });
 
+cancelButton.addEventListener("click", function () {
+  studentForm.reset(); // 폼 초기화
+  cancelButton.style.display = 'none'; // 취소 버튼 숨기기
+});
+
 // 학생 수정전에 데이터를 로드하는 함수
 async function editStudent(studentId) {
   try {
