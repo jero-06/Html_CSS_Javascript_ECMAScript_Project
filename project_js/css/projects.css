@@ -62,3 +62,15 @@ body {
     /* 마우스를 올렸을 때(Hover) 일어나는 모든 변화를 0.3초 동안 부드럽게 보여줍니다. */
     transition: all 0.3s ease; 
 }
+
+/* [5단계] 카드 이미지 영역: 실제 이미지가 들어갈 자리 */
+.card-image {
+    height: 200px;             /* 이미지 영역 높이 고정 */
+    background-color: #444;    /* 이미지가 없을 때를 대비한 짙은 회색 배경 */
+    color: #fff;
+    display: flex;             /* 내부 글자를 중앙에 두기 위해 Flex 사용 */
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
