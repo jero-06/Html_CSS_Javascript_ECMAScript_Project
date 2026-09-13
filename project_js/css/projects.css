@@ -90,3 +90,27 @@ body {
     font-size: 0.95rem;
     margin-bottom: 20px;       /* 아래 태그들과의 간격 */
 }
+
+/* [7단계] 마우스 오버(Hover) 효과: 마우스를 카드 위에 올렸을 때의 변화 */
+.card:hover {
+    /* translateY(-15px): Y축(세로) 방향으로 -15px만큼 이동(즉, 위로 공중 부양) */
+    transform: translateY(-15px); 
+    /* 떠오른 느낌을 극대화하기 위해 그림자를 더 크고 진하게 바꿉니다. */
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2); 
+}
+
+/* [7단계] 기술 스택 태그: 사용한 기술들을 보여주는 작은 칩 */
+.tags {
+    display: flex;             /* 태그들을 가로로 나열 */
+    gap: 8px;                  /* 태그들 사이의 간격 */
+    flex-wrap: wrap;           /* 화면이 좁아 태그가 넘치면 자동으로 다음 줄로 넘김 */
+}
+
+.tags span {
+    background: #f0f0f0;       /* 태그 배경은 아주 연한 회색 */
+    padding: 4px 12px;         /* 태그 안쪽 여백 */
+    border-radius: 50px;       /* 수치를 크게 주어 완전한 알약 모양으로 만듦 */
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 500;
+}
