@@ -114,3 +114,12 @@ body {
     color: #555;
     font-weight: 500;
 }
+
+/* [8단계] 푸터 디자인 */
+.footer {
+    text-align: center;
+    padding: 40px 0;
+    color: #999;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
+}
