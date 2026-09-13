@@ -123,3 +123,13 @@ body {
     font-size: 0.9rem;
     border-top: 1px solid #eee;
 }
+
+@media (max-width: 768px) {
+
+.project-container {
+
+grid-template-columns: 1fr;   /* 3열 → 1열 */
+
+}
+
+}
