@@ -74,3 +74,19 @@ body {
     font-weight: bold;
     font-size: 1.2rem;
 }
+
+/* [6단계] 카드 텍스트 내용: 제목과 설명이 들어가는 곳 */
+.card-content {
+    padding: 25px;             /* 카드 내부 사방에 여백을 주어 글자가 답답하지 않게 함 */
+}
+
+.card-content h3 {
+    margin-bottom: 12px;       /* 제목 아래쪽 본문과의 간격 */
+    font-size: 1.25rem;
+}
+
+.card-content p {
+    color: #777;               /* 본문은 제목보다 조금 더 연한 회색으로 */
+    font-size: 0.95rem;
+    margin-bottom: 20px;       /* 아래 태그들과의 간격 */
+}
