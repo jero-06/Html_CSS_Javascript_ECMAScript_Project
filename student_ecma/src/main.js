@@ -7,7 +7,22 @@ import {
   deleteStudent as apiDeleteStudent,
 } from "./api/studentApi";
 
-import { studentForm, collectStudentData } from "./ui/studentForm.js";
+import {
+  studentForm,
+  collectStudentData,
+  cancelButton,
+  fillForm,
+  setEditMode,
+  resetForm,
+  scrollToForm,
+} from "./ui/studentForm.js";
+
+import {
+  showError,
+  showSuccess,
+  clearMessages,
+  setLoading,
+} from "./ui/message.js";
 import { validateStudent } from "./lib/validation.js";
 
 // 현재 수정 중인 학생 ID
