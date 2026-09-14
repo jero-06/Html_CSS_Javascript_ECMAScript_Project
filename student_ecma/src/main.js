@@ -61,13 +61,15 @@ studentForm.addEventListener("submit", function (e) {
   }
 });
 
-cancelButton.addEventListener("click", function () {
-  studentForm.reset(); // 폼 초기화
-  cancelButton.style.display = "none"; // 취소 버튼 숨기기
+// 바꾼 뒤 — 폼은 resetForm 이, 수정 상태와 메시지는 여기서 정리한다
+cancelButton.addEventListener("click", () => {
+    editingStudentId = null;
+    resetForm();
+    clearMessages();
 });
 
 async function loadStudents() {
-  loadingMessage.style.display = "block";
+  setLoading(true); // 로딩 메시지 표시
 
   // try 안에서 오류가 나면 곧바로 catch 로 넘어간다.
   // finally 는 성공하든 실패하든 마지막에 반드시 실행된다.
@@ -81,7 +83,7 @@ async function loadStudents() {
     showError(error.message);
   } finally {
     // 여기에 두면 성공 경로와 실패 경로에 두 번 적지 않아도 된다.
-    loadingMessage.style.display = "none";
+    setLoading(false);
   }
 }
 
@@ -129,28 +131,19 @@ async function deleteStudent(studentId) {
   }
 }
 
-// 수정 전 데이터 로드 — 폼 채우기는 실습 4-9 에서 fillForm 으로 옮긴다
+// 바꾼 뒤 — 폼 다루기는 studentForm.js 에 맡긴다
 async function editStudent(studentId) {
-  try {
-    const student = await apiFetchStudent(studentId);
-
-    studentForm.name.value = student.name;
-    studentForm.studentNumber.value = student.studentNumber;
-
-    if (student.detail) {
-      studentForm.address.value = student.detail.address;
-      studentForm.phoneNumber.value = student.detail.phoneNumber;
-      studentForm.email.value = student.detail.email || "";
-      studentForm.dateOfBirth.value = student.detail.dateOfBirth || "";
+    try {
+        const student = await apiFetchStudent(studentId);
+ 
+        fillForm(student);
+        editingStudentId = studentId;
+        setEditMode(true);
+        scrollToForm();
+    } catch (error) {
+        console.error("Error:", error);
+        showError(error.message);
     }
-
-    editingStudentId = studentId;
-    submitButton.textContent = "학생 수정";
-    studentForm.scrollIntoView({ behavior: "smooth" });
-  } catch (error) {
-    console.error("Error:", error);
-    showError(error.message);
-  }
 }
 
 function renderStudentTable(students) {
