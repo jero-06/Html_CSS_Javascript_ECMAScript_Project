@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 
 const MyComponentFunc = ({ name, age, children }) => {
     const [value, setValue] = useState(0);
+    // const [message, setMessage] = useState("");
+    // const [username, setUsername] = useState("");
+    const [inputs, setInputs] = useState({
+        message: '', username: ''
+    });
+    
     return (
         <div>
             <h2>함수 형태의 컴포넌트</h2>
