@@ -1,10 +1,11 @@
 import './App.css'
+import MyComponent from './MyComponent.jsx'
 
 function App() {
 
   return (
     <>
-      <h1>Hello, React!</h1>
+      <MyComponent name="홍길동" age={20}/>
     </>
   )
 }
