@@ -1,7 +1,7 @@
 import "./style.css";
 import {
   fetchStudents,
-  fetchStudent as apiFetchStudent,
+  fetchStudent,
   createStudent as apiCreateStudent,
   updateStudent as apiUpdateStudent,
   deleteStudent as apiDeleteStudent,
@@ -159,7 +159,7 @@ async function deleteStudent(studentId) {
 // 바꾼 뒤 — 폼 다루기는 studentForm.js 에 맡긴다
 async function editStudent(studentId) {
   try {
-    const student = await apiFetchStudent(studentId);
+    const student = await fetchStudent(studentId);
 
     fillForm(student);
     editingStudentId = studentId;
