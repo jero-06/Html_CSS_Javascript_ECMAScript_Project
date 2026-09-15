@@ -8,9 +8,17 @@ class MyComponent extends Component {
     username: ''
   };
 
+  // 이벤트 핸들러 함수
+    handleChange = (e) => {
+
+    }
+
+  // Component 메서드 재정의
   render() {
     const { name, age } = this.props;
     const { value, message, username } = this.state;
+    const { handleChange } = this;
+
     return (
       <div>
         <h2>클래스 형태의 컴포넌트</h2>
@@ -23,7 +31,7 @@ class MyComponent extends Component {
         </button>
         
         <p>상태변수 message = {message}</p>
-        <input name="message" value={message}/>
+        <input name="message" value={message} onChange={handleChange} />
         <br />
         <p>상태변수 username = {username}</p>
         <input name="username" value={username}/>
