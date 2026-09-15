@@ -25,6 +25,12 @@ import {
 } from "./ui/message.js";
 import { validateStudent } from "./lib/validation.js";
 
+import {
+  renderStudentTable,
+  renderTableError,
+  studentTableBody,
+} from "./ui/studentTable.js";
+
 // 현재 수정 중인 학생 ID
 let editingStudentId = null;
 
@@ -63,9 +69,9 @@ studentForm.addEventListener("submit", function (e) {
 
 // 바꾼 뒤 — 폼은 resetForm 이, 수정 상태와 메시지는 여기서 정리한다
 cancelButton.addEventListener("click", () => {
-    editingStudentId = null;
-    resetForm();
-    clearMessages();
+  editingStudentId = null;
+  resetForm();
+  clearMessages();
 });
 
 async function loadStudents() {
@@ -133,17 +139,17 @@ async function deleteStudent(studentId) {
 
 // 바꾼 뒤 — 폼 다루기는 studentForm.js 에 맡긴다
 async function editStudent(studentId) {
-    try {
-        const student = await apiFetchStudent(studentId);
- 
-        fillForm(student);
-        editingStudentId = studentId;
-        setEditMode(true);
-        scrollToForm();
-    } catch (error) {
-        console.error("Error:", error);
-        showError(error.message);
-    }
+  try {
+    const student = await apiFetchStudent(studentId);
+
+    fillForm(student);
+    editingStudentId = studentId;
+    setEditMode(true);
+    scrollToForm();
+  } catch (error) {
+    console.error("Error:", error);
+    showError(error.message);
+  }
 }
 
 function renderStudentTable(students) {
