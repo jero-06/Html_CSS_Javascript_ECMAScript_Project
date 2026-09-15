@@ -34,14 +34,6 @@ import {
 // 현재 수정 중인 학생 ID
 let editingStudentId = null;
 
-// DOM 요소 참조
-const submitButton = studentForm.querySelector('button[type="submit"]');
-
-// 초기화
-document.addEventListener("DOMContentLoaded", function () {
-  loadStudents();
-});
-
 // 폼 제출 이벤트 핸들러
 studentForm.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -104,6 +96,7 @@ studentTableBody.addEventListener("click", async (event) => {
     //   event.target  이벤트를 건 tbody 가 아니라 실제로 눌린 가장 안쪽 요소
     //   closest(...)  자기 자신부터 부모 쪽으로 올라가며 조건에 맞는 첫 요소를 찾는다
     //                 끝까지 없으면 null 을 돌려준다
+    // <button type="button" class="edit-btn" data-action="edit" data-id="1">수정</button>
     const button = event.target.closest("button[data-action]");
     if (!button) return;             // 버튼이 아닌 곳을 눌렀다
  
@@ -177,3 +170,6 @@ async function editStudent(studentId) {
     showError(error.message);
   }
 }
+
+// Student load 함수 호출
+loadStudents();
