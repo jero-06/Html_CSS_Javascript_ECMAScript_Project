@@ -10,7 +10,11 @@ class MyComponent extends Component {
 
   // 이벤트 핸들러 함수
     handleChange = (e) => {
-
+        this.setState({
+            // message: e.target.value
+            // username: e.target.value
+            [e.target.name]: e.target.value
+        });
     }
 
   // Component 메서드 재정의
@@ -34,7 +38,7 @@ class MyComponent extends Component {
         <input name="message" value={message} onChange={handleChange} />
         <br />
         <p>상태변수 username = {username}</p>
-        <input name="username" value={username}/>
+        <input name="username" value={username} onChange={handleChange}/>
       </div>
     );
   }
