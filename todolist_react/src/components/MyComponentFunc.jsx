@@ -12,7 +12,11 @@ const MyComponentFunc = ({ name, age, children }) => {
   const { message, username } = inputs;
 
   // 이벤트 핸들러 함수
-  const handleChange = (e) => {};
+  const handleChange = (e) => {
+    setInputs({
+      [e.target.name]: e.target.value
+    });
+  };
 
   return (
     <div>
