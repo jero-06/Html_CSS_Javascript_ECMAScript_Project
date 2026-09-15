@@ -7,7 +7,15 @@ const MyComponentFunc = ({ name, age, children }) => {
     const [inputs, setInputs] = useState({
         message: '', username: ''
     });
-    
+    // 비구조화 할당
+    const { message, username } = inputs;
+
+
+    // 이벤트 핸들러 함수
+    const handleChange = (e) => {
+
+    }
+
     return (
         <div>
             <h2>함수 형태의 컴포넌트</h2>
