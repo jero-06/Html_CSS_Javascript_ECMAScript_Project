@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./style.css";
+import { useEffect } from "react";
 
 function App() {
   // 상태 변수 선언
@@ -13,6 +14,12 @@ function App() {
 
   // 수정 모드인지는 editingId 로 알 수 있으므로 따로 state 를 두지 않는다.
   const isEditing = editingId !== null;
+
+  useEffect(() => {
+    let count = 0;
+    count++;
+    console.log("useEffect() 호출됨" + count);
+  }, []);
 
   return (
     <>
