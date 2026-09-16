@@ -1,11 +1,11 @@
 import './App.css'
-import './components/TodoListTemplate.css';
+import TodoListTemplate from './components/TodoListTemplate';
 
 function App() {
 
   return (
     <>
-      <TodoListTemplatete>
+      <TodoListTemplateete>
             템플릿 완성
         </TodoListTemplate>
 
