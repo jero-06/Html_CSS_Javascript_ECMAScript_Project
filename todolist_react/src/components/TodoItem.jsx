@@ -12,7 +12,7 @@ const TodoItem = ({ text, checked, id, onToggle, onRemove }) => {
             >
                 &times;
             </div>
-            <div className={`todo-text ${checked && "checked": ""}`}>
+            <div className={`todo-text ${checked && "checked"}`}>
                 <div>{text}</div>
             </div>
             {checked && (<div className="check-mark">✓</div>)}
