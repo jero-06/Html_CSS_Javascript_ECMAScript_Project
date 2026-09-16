@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
+import {  fetchStudents } from "./api/studentApi";
 import "./style.css";
-import {
-  fetchStudents,
-}
 
 function App() {
   // 상태 변수 선언
