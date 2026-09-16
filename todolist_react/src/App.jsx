@@ -2,7 +2,7 @@ import "./App.css";
 import TodoListTemplate from "./components/TodoListTemplate";
 import Form from "./components/Form";
 import TodoItemList from "./components/TodoItemList";
-import { useState } from 'react';
+import { useState } from "react";
 
 function App() {
   // 입력칸에 지금 들어 있는 글자
@@ -38,9 +38,17 @@ function App() {
   const handleEnter = (e) => {
     // 눌려진 키가 Enter 이면 handleCreate 호출
     // if (e.keyCode === 13) {
-      if (e.key === "Enter") {  
+    if (e.key === "Enter") {
       handleCreate();
     }
+  };
+
+  const handleToggle = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, checked: !todo.checked } : todo,
+      ),
+    );
   };
 
   return (
