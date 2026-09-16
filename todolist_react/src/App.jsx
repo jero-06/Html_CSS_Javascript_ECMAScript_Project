@@ -17,6 +17,10 @@ function App() {
   // 다음에 만들 할 일의 번호. 0,1,2 를 이미 썼으므로 3부터.
   const [nextId, setNextId] = useState(3);
 
+  const handleChange = (e) => {
+    setTodo(e.target.value); // 입력칸의 다음 값
+  };
+
   return (
     <>
       <TodoListTemplate form={<Form />}>
