@@ -2,6 +2,7 @@ import "./App.css";
 import TodoListTemplate from "./components/TodoListTemplate";
 import Form from "./components/Form";
 import TodoItemList from "./components/TodoItemList";
+import { useState } from 'react';
 
 function App() {
   // 입력칸에 지금 들어 있는 글자
