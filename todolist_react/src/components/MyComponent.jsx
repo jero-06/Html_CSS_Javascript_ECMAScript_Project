@@ -19,11 +19,16 @@ class MyComponent extends Component {
     });
   };
 
+  handleEnter = (e) => {
+    if (e.keyCode === 13) {
+        this.setState();
+  };
+
   // Component 메서드 재정의
   render() {
     const { name, age } = this.props;
     const { value, message, username, isValid } = this.state;
-    const { handleChange } = this;
+    const { handleChange, handleEnter } = this;
 
     return (
       <div>
