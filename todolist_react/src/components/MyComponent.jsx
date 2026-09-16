@@ -37,7 +37,12 @@ class MyComponent extends Component {
         </button>
 
         <p>상태변수 message = {message}</p>
-        <input name="message" value={message} onChange={handleChange} />
+        <input
+          name="message"
+          value={message}
+          onChange={handleChange}
+          onKeyDown={handleEnter}
+        />
         <br />
         <p>상태변수 username = {username}</p>
         <input
