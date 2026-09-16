@@ -21,11 +21,13 @@ class MyComponent extends Component {
 
   handleEnter = (e) => {
     if (e.keyCode === 13) {
-        this.setState({
-            isValid: true
-        });
-        // html 직접 접근
-        this.myUsername.focus();
+      this.setState({
+        isValid: true,
+        message: "",
+      });
+      // html dom직접 접근
+      this.myUsername.focus();
+    }
   };
 
   // Component 메서드 재정의
