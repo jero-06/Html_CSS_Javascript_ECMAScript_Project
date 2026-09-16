@@ -1,4 +1,5 @@
 import "./TodoItem.css";
+import { memo } from "react";
 
 const TodoItem = ({ text, checked, id, onToggle, onRemove }) => {
   return (
@@ -20,4 +21,8 @@ const TodoItem = ({ text, checked, id, onToggle, onRemove }) => {
   );
 };
 
-export default TodoItem;
+// export default TodoItem;
+export default memo(
+    TodoItem,
+    (prevProps, nextProps) => prevProps.checked === nextProps.checked
+);
