@@ -1,9 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 
-import { fetchStudents, createStudent, updateStudent, deleteStudent } from "./api/studentApi";
+import {
+  fetchStudents,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+  fetchStudent,
+} from "./api/studentApi";
 import StudentTable from "./components/StudentTable";
 import StudentForm from "./components/StudentForm";
-import { EMPTY_FORM, toRequest } from "./lib/studentData";
+import { EMPTY_FORM, toFormValues, toRequest } from "./lib/studentData";
 import { validateStudent } from "../../student_ecma/src/lib/validation";
 
 import "./style.css";
@@ -78,7 +84,27 @@ function App() {
     loadStudents();
   }, []); // 빈 배열이면 처음 한 번만 실행
 
-  function handleEdit() {} //handleEdit
+  async function handleEdit(studentId) {
+    setMessage(null); // 앞선 메시지를 지운다
+
+    try {
+      const student = await fetchStudent(studentId);
+
+      // 4부에서는 fillForm 이 input.value 에 하나씩 넣었다.
+      // 여기서는 state 만 바꾸면 입력칸이 따라서 바뀐다.
+      setForm(toFormValues(student));
+      setEditingId(studentId);
+
+      // formRef.current 는 화면에 그려진 form-container 요소다.
+      // 아직 안 그려졌을 수도 있으므로 먼저 확인한다.
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setMessage({ text: error.message, type: "error" });
+    }
+  } //handleEdit
 
   async function handleDelete(studentId) {
     if (!confirm("정말로 이 학생을 삭제하시겠습니까?")) {
