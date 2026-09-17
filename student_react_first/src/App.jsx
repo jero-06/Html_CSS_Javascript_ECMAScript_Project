@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {  fetchStudents } from "./api/studentApi";
+import { fetchStudents } from "./api/studentApi";
 import "./style.css";
 
 function App() {
@@ -42,9 +42,20 @@ function App() {
     loadStudents();
   }, []); // 빈 배열이면 처음 한 번만 실행
 
+  function handleEdit() {}
+
+  function handleDelete() {}
+
   return (
     <>
       <h1>학생 관리 시스템</h1>
+      <StudentTable
+        students={students}
+        loading={loading}
+        error={listError}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </>
   );
 }
