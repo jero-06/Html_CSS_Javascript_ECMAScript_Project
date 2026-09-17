@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-import { fetchStudents, createStudent, updateStudent } from "./api/studentApi";
+import { fetchStudents, createStudent, updateStudent, deleteStudent } from "./api/studentApi";
 import StudentTable from "./components/StudentTable";
 import StudentForm from "./components/StudentForm";
 import { EMPTY_FORM, toRequest } from "./lib/studentData";
@@ -80,7 +80,29 @@ function App() {
 
   function handleEdit() {} //handleEdit
 
-  function handleDelete() {} //handleDelete
+  async function handleDelete(studentId) {
+    if (!confirm("정말로 이 학생을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      await deleteStudent(studentId);
+      setMessage({
+        text: "학생이 성공적으로 삭제되었습니다.",
+        type: "success",
+      });
+
+      // 수정 중이던 학생을 삭제했다면 폼도 등록 모드로 되돌린다.
+      if (editingId === studentId) {
+        resetForm();
+      }
+
+      await loadStudents();
+    } catch (error) {
+      console.error("Error:", error);
+      setMessage({ text: error.message, type: "error" });
+    }
+  } //handleDelete
 
   function handleChange(event) {
     // 어느 칸이 바뀌었는지, 값은 무엇인지 꺼낸다.
