@@ -11,6 +11,7 @@ import StudentTable from "./components/StudentTable";
 import StudentForm from "./components/StudentForm";
 import { EMPTY_FORM, toFormValues, toRequest } from "./lib/studentData";
 import { validateStudent } from "../../student_ecma/src/lib/validation";
+import { APP_MODE } from "./config.js";
 
 import "./style.css";
 
@@ -33,6 +34,12 @@ function App() {
    state 와 달리 값이 바뀌어도 화면을 다시 그리지 않는다.
    수정 버튼을 눌렀을 때 폼으로 스크롤하는 데만 쓴다. */
   const formRef = useRef(null);
+
+  // 제목 옆에 붙일 배지의 class. 운영이면 빨강, 아니면 회색.
+  let modeClass = "app-mode test";
+  if (APP_MODE === "PROD") {
+    modeClass = "app-mode prod";
+  }
 
   async function loadStudents() {
     setLoading(true);
@@ -195,7 +202,9 @@ function App() {
 
   return (
     <>
-      <h1>학생 관리 시스템</h1>
+      <h1>
+        학생 관리 시스템<span className={modeClass}>{APP_MODE}</span>
+      </h1>
 
       <StudentForm
         form={form}
