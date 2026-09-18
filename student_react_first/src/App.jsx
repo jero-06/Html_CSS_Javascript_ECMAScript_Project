@@ -65,6 +65,12 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    // 아래 주석은 ESLint 에게 "이 경고는 알고 있다"고 알려 주는 줄이다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 처음 한 번 목록을 불러오는 것은 의도된 동작입니다
+    loadStudents();
+  }, [loadStudents]);
+
   /* -----------------------------------------------------
        성공 메시지는 3초 뒤에 저절로 사라진다
        4부에서 messageTimer 변수를 두고 clearTimeout 을 부르던 일을
