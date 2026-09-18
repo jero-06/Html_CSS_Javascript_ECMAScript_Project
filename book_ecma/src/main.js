@@ -194,7 +194,7 @@ async function deleteBook(bookId) {
 // 도서 수정 함수
 async function editBook(bookId) {
   try {
-    const book = fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
+    const book = await fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
 
     // 폼에 기본 도서 정보 채우기
     bookForm.title.value = book.title;
@@ -239,36 +239,30 @@ async function updateBook(bookId, bookData) {
 }
 
 // 도서 상세보기 함수
-function showBookDetail(bookId) {
-  fetch(`${API_BASE_URL}/api/books/${bookId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("도서 정보를 불러오는데 실패했습니다.");
-      }
-      return response.json();
-    })
-    .then((book) => {
-      let detailInfo = `제목: ${book.title}\n`;
-      detailInfo += `저자: ${book.author}\n`;
-      detailInfo += `ISBN: ${book.isbn}\n`;
-      detailInfo += `가격: ${book.price ? "₩" + book.price.toLocaleString() : "-"}\n`;
-      detailInfo += `출판일: ${book.publishDate || "-"}\n\n`;
+async function showBookDetail(bookId) {
+  try {
+    const book = await fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
 
-      if (book.bookDetail) {
-        detailInfo += `설명: ${book.bookDetail.description || "-"}\n`;
-        detailInfo += `언어: ${book.bookDetail.language || "-"}\n`;
-        detailInfo += `페이지 수: ${book.bookDetail.pageCount || "-"}\n`;
-        detailInfo += `출판사: ${book.bookDetail.publisher || "-"}\n`;
-        detailInfo += `에디션: ${book.bookDetail.edition || "-"}\n`;
-        detailInfo += `표지 이미지: ${book.bookDetail.coverImageUrl || "-"}`;
-      }
+    let detailInfo = `제목: ${book.title}\n`;
+    detailInfo += `저자: ${book.author}\n`;
+    detailInfo += `ISBN: ${book.isbn}\n`;
+    detailInfo += `가격: ${book.price ? "₩" + book.price.toLocaleString() : "-"}\n`;
+    detailInfo += `출판일: ${book.publishDate || "-"}\n\n`;
 
-      alert(detailInfo);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("도서 정보를 불러오는데 실패했습니다.");
-    });
+    if (book.bookDetail) {
+      detailInfo += `설명: ${book.bookDetail.description || "-"}\n`;
+      detailInfo += `언어: ${book.bookDetail.language || "-"}\n`;
+      detailInfo += `페이지 수: ${book.bookDetail.pageCount || "-"}\n`;
+      detailInfo += `출판사: ${book.bookDetail.publisher || "-"}\n`;
+      detailInfo += `에디션: ${book.bookDetail.edition || "-"}\n`;
+      detailInfo += `표지 이미지: ${book.bookDetail.coverImageUrl || "-"}`;
+    }
+
+    alert(detailInfo);
+  } catch (error) {
+    console.error("Error:", error);
+    alert("도서 정보를 불러오는데 실패했습니다.");
+  }
 }
 
 // 폼 초기화 함수
