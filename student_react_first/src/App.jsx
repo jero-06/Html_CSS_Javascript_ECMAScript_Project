@@ -15,6 +15,7 @@ import { validateStudent } from "../../student_ecma/src/lib/validation";
 import { APP_MODE } from "./config.js";
 
 import "./style.css";
+import { useCallback } from "react";
 
 const MESSAGE_TIMEOUT = 3000;
 
@@ -42,7 +43,8 @@ function App() {
     modeClass = "app-mode prod";
   }
 
-  async function loadStudents() {
+  // async function loadStudents() {}
+  const loadStudents = useCallback(async () => {
     setLoading(true);
     setListError(null);
 
@@ -61,7 +63,7 @@ function App() {
       // 성공하든 실패하든 로딩 표시는 반드시 끈다.
       setLoading(false);
     }
-  }
+  }, []);
 
   /* -----------------------------------------------------
        성공 메시지는 3초 뒤에 저절로 사라진다
