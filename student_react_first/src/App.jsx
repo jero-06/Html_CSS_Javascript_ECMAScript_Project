@@ -100,6 +100,13 @@ function App() {
     loadStudents();
   }, []); // 빈 배열이면 처음 한 번만 실행
 
+  // 실습 5-9 에서 속을 채운다.
+  // function resetForm() {
+  const resetForm = useCallback(() => {
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+  }, []); //resetForm
+
   // async function handleEdit(studentId) {
   const handleEdit = useCallback(async (studentId) => {
     setMessage(null); // 앞선 메시지를 지운다
@@ -123,29 +130,33 @@ function App() {
     }
   }, []); //handleEdit
 
-  async function handleDelete(studentId) {
-    if (!confirm("정말로 이 학생을 삭제하시겠습니까?")) {
-      return;
-    }
-
-    try {
-      await deleteStudent(studentId);
-      setMessage({
-        text: "학생이 성공적으로 삭제되었습니다.",
-        type: "success",
-      });
-
-      // 수정 중이던 학생을 삭제했다면 폼도 등록 모드로 되돌린다.
-      if (editingId === studentId) {
-        resetForm();
+  // async function handleDelete(studentId) {
+  const handleDelete = useCallback(
+    async (studentId) => {
+      if (!confirm("정말로 이 학생을 삭제하시겠습니까?")) {
+        return;
       }
 
-      await loadStudents();
-    } catch (error) {
-      console.error("Error:", error);
-      setMessage({ text: error.message, type: "error" });
-    }
-  } //handleDelete
+      try {
+        await deleteStudent(studentId);
+        setMessage({
+          text: "학생이 성공적으로 삭제되었습니다.",
+          type: "success",
+        });
+
+        // 수정 중이던 학생을 삭제했다면 폼도 등록 모드로 되돌린다.
+        if (editingId === studentId) {
+          resetForm();
+        }
+
+        await loadStudents();
+      } catch (error) {
+        console.error("Error:", error);
+        setMessage({ text: error.message, type: "error" });
+      }
+    },
+    [editingId, resetForm, loadStudents],
+  ); //handleDelete
 
   function handleChange(event) {
     // 어느 칸이 바뀌었는지, 값은 무엇인지 꺼낸다.
@@ -203,13 +214,6 @@ function App() {
       setMessage({ text: error.message, type: "error" }); // 서버가 보낸 실제 메시지
     }
   } //handleSubmit
-
-  // 실습 5-9 에서 속을 채운다.
-  // function resetForm() {
-  const resetForm = useCallback(() => {
-    setForm(EMPTY_FORM);
-    setEditingId(null);
-  }, []); //resetForm
 
   return (
     <>
