@@ -22,4 +22,5 @@ export function collectBookData() {
       edition: formData.get("edition").trim(),
     },
   };
+  return response.json();
 }
