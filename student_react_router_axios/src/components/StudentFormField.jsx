@@ -96,11 +96,9 @@ function StudentForm({
 
                     {/* 4부에서는 style.display 를 바꿨지만, 여기서는 아예 그리지 않는다.
                         조건 && 화면 은 "조건이 참일 때만 그린다"는 뜻이다. */}
-                    {isEditing && (
-                        <button type="button" className="cancel-btn" onClick={onCancel}>
-                            취소
-                        </button>
-                    )}
+                    <button type="button" className="cancel-btn" onClick={onCancel}>
+                        취소
+                    </button>
 
                     <MessageBox message={message} />
                 </div>
