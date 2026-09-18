@@ -176,25 +176,19 @@ function renderBookTable(books) {
 }
 
 // 도서 삭제 함수
-function deleteBook(bookId) {
+async function deleteBook(bookId) {
   if (!confirm("정말로 이 도서를 삭제하시겠습니까?")) {
     return;
   }
 
-  fetch(`${API_BASE_URL}/api/books/${bookId}`, {
-    method: "DELETE",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("도서 삭제에 실패했습니다.");
-      }
-      alert("도서가 성공적으로 삭제되었습니다.");
-      loadBooks(); // 목록 새로고침
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("도서 삭제에 실패했습니다.");
-    });
+  try {
+    await apiDeleteBook(bookData);
+    alert("도서가 성공적으로 삭제되었습니다.");
+    loadBooks(); // 목록 새로고침
+  } catch (error) {
+    console.error("Error:", error);
+    alert("도서 삭제에 실패했습니다.");
+  }
 }
 
 // 도서 수정 함수
