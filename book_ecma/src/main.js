@@ -7,6 +7,7 @@ import {
   deleteBook as apiDeleteBook,
 } from "./api/bookApi.js";
 import { bookForm, collectBookData } from "./ui/bookForm.js";
+import { validateBook } from "./lib/validation.js";
 
 // 전역 변수
 let editingBookId = null; // 현재 수정 중인 도서 ID
@@ -29,7 +30,9 @@ bookForm.addEventListener("submit", function (e) {
   const bookData = collectBookData();
 
   // 유효성 검사
-  if (!validateBook(bookData)) {
+  const message = validateBook(bookData);
+  if (message) {
+    alert(message);
     return;
   }
 
@@ -51,65 +54,6 @@ async function createBook(bookData) {
   } catch (error) {
     console.error("Error:", error);
     alert("도서 등록에 실패했습니다.");
-  }
-}
-
-// 도서 데이터 유효성 검사
-function validateBook(book) {
-  // 필수 필드 검사
-  if (!book.title) {
-    alert("제목을 입력해주세요.");
-    return false;
-  }
-
-  if (!book.author) {
-    alert("저자를 입력해주세요.");
-    return false;
-  }
-
-  if (!book.isbn) {
-    alert("ISBN을 입력해주세요.");
-    return false;
-  }
-
-  // ISBN 형식 검사 (기본적인 영숫자 조합)
-  const isbnPattern = /^[0-9X-]+$/;
-  if (!isbnPattern.test(book.isbn)) {
-    alert("올바른 ISBN 형식이 아닙니다. (숫자와 X, -만 허용)");
-    return false;
-  }
-
-  // 가격 유효성 검사
-  if (book.price !== null && book.price < 0) {
-    alert("가격은 0 이상이어야 합니다.");
-    return false;
-  }
-
-  // 페이지 수 유효성 검사
-  if (book.bookDetail.pageCount !== null && book.bookDetail.pageCount < 0) {
-    alert("페이지 수는 0 이상이어야 합니다.");
-    return false;
-  }
-
-  // URL 형식 검사 (입력된 경우에만)
-  if (
-    book.bookDetail.coverImageUrl &&
-    !isValidUrl(book.bookDetail.coverImageUrl)
-  ) {
-    alert("올바른 이미지 URL 형식이 아닙니다.");
-    return false;
-  }
-
-  return true;
-}
-
-// URL 유효성 검사
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
   }
 }
 
@@ -176,7 +120,7 @@ async function deleteBook(bookId) {
 // 도서 수정 함수
 async function editBook(bookId) {
   try {
-    const book = await fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
+    const book = await fetchBook(bookId); // fetchBook을 호출하고 결과를 기다린다
 
     // 폼에 기본 도서 정보 채우기
     bookForm.title.value = book.title;
@@ -223,7 +167,7 @@ async function updateBook(bookId, bookData) {
 // 도서 상세보기 함수
 async function showBookDetail(bookId) {
   try {
-    const book = await fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
+    const book = await fetchBook(bookId); // fetchBook을 호출하고 결과를 기다린다
 
     let detailInfo = `제목: ${book.title}\n`;
     detailInfo += `저자: ${book.author}\n`;
