@@ -1,4 +1,5 @@
 import './style.css'
+import { fetchBooks } from "./api/bookApi.js";
 
 // 전역 변수
 const API_BASE_URL = 'http://localhost:8080';
@@ -299,6 +300,7 @@ function showBookDetail(bookId) {
             alert('도서 정보를 불러오는데 실패했습니다.');
         });
 }
+fetchBooks().then(console.log);
 
 // 폼 초기화 함수
 function resetForm() {
