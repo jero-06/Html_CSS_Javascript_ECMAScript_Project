@@ -182,7 +182,7 @@ async function deleteBook(bookId) {
   }
 
   try {
-    await apiDeleteBook(bookData);
+    await apiDeleteBook(bookId);
     alert("도서가 성공적으로 삭제되었습니다.");
     loadBooks(); // 목록 새로고침
   } catch (error) {
@@ -192,43 +192,37 @@ async function deleteBook(bookId) {
 }
 
 // 도서 수정 함수
-function editBook(bookId) {
-  fetch(`${API_BASE_URL}/api/books/${bookId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("도서 정보를 불러오는데 실패했습니다.");
-      }
-      return response.json();
-    })
-    .then((book) => {
-      // 폼에 기본 도서 정보 채우기
-      bookForm.title.value = book.title;
-      bookForm.author.value = book.author;
-      bookForm.isbn.value = book.isbn;
-      bookForm.price.value = book.price || "";
-      bookForm.publishDate.value = book.publishDate || "";
+async function editBook(bookId) {
+  try {
+    const book = fetchBook(bookId);   // fetchBook을 호출하고 결과를 기다린다
 
-      // 폼에 상세 정보 채우기
-      if (book.bookDetail) {
-        bookForm.description.value = book.bookDetail.description || "";
-        bookForm.language.value = book.bookDetail.language || "";
-        bookForm.pageCount.value = book.bookDetail.pageCount || "";
-        bookForm.publisher.value = book.bookDetail.publisher || "";
-        bookForm.coverImageUrl.value = book.bookDetail.coverImageUrl || "";
-        bookForm.edition.value = book.bookDetail.edition || "";
-      }
+    // 폼에 기본 도서 정보 채우기
+    bookForm.title.value = book.title;
+    bookForm.author.value = book.author;
+    bookForm.isbn.value = book.isbn;
+    bookForm.price.value = book.price || "";
+    bookForm.publishDate.value = book.publishDate || "";
 
-      // 수정 모드로 설정
-      editingBookId = bookId;
-      submitButton.textContent = "도서 수정";
+    // 폼에 상세 정보 채우기
+    if (book.bookDetail) {
+      bookForm.description.value = book.bookDetail.description || "";
+      bookForm.language.value = book.bookDetail.language || "";
+      bookForm.pageCount.value = book.bookDetail.pageCount || "";
+      bookForm.publisher.value = book.bookDetail.publisher || "";
+      bookForm.coverImageUrl.value = book.bookDetail.coverImageUrl || "";
+      bookForm.edition.value = book.bookDetail.edition || "";
+    }
 
-      // 폼으로 스크롤
-      bookForm.scrollIntoView({ behavior: "smooth" });
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("도서 정보를 불러오는데 실패했습니다.");
-    });
+    // 수정 모드로 설정
+    editingBookId = bookId;
+    submitButton.textContent = "도서 수정";
+
+    // 폼으로 스크롤
+    bookForm.scrollIntoView({ behavior: "smooth" });
+  } catch (error) {
+    console.error("Error:", error);
+    alert("도서 정보를 불러오는데 실패했습니다.");
+  }
 }
 
 // 도서 업데이트 함수
