@@ -28,7 +28,7 @@ export function validateBook(book) {
     return "올바른 이미지 URL 형식이 아닙니다.";
   }
 
-  return validateBook(book);   // 문제가 하나도 없으면 뭘 돌려줘야 할까요?
+  return null;   // 문제가 하나도 없으면 뭘 돌려줘야 할까요?
 }
 
 function isValidUrl(string) {
