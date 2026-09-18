@@ -53,7 +53,6 @@ function StudentForm({
     onChange,      // 입력칸이 바뀔 때 부를 함수
     onSubmit,      // 제출할 때 부를 함수
     onCancel,      // 취소를 누를 때 부를 함수
-    containerRef,  // 수정 시 이 위치로 스크롤하기 위한 참조
 }) {
     // 4부 setEditMode 가 classList.toggle 로 하던 일을 문자열로 표현한다.
     let containerClass = "form-container";
@@ -68,7 +67,7 @@ function StudentForm({
     }
 
     return (
-        <div className={containerClass} ref={containerRef}>
+        <div className={containerClass}>
             <h2>학생 {actionLabel}</h2>
 
             {/* onSubmit 안에서 event.preventDefault() 를 부르는 것은 4부와 같다. */}

@@ -17,12 +17,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { createStudent, fetchStudent, updateStudent } from "../api/studentApi.js";
 import { validateStudent } from "../lib/validation.js";
 import { EMPTY_FORM, toRequest, toFormValues } from "../lib/studentData.js";
-import StudentForm from "../components/StudentForm.jsx";
+import StudentForm from "../components/StudentFormField.jsx";
 
 function StudentFormPage() {
     /* useParams 는 주소의 :id 자리에 있던 값을 돌려준다.
        언제나 문자열이고, /new 처럼 그 자리가 없으면 undefined 다. */
     const { id } = useParams();
+    // id 값이 있다면 수정모드
     const isEditing = id !== undefined;
 
     // useNavigate 는 "다른 주소로 옮겨 가는 함수" 를 돌려준다.
@@ -36,12 +37,14 @@ function StudentFormPage() {
        의존성 배열에 id 가 있으므로, 주소가 /edit/3 에서 /edit/7 로
        바뀌면 이 효과가 다시 실행된다. */
     useEffect(() => {
+        // 등록모드면 실행 X
         if (!isEditing) {
             return;
         }
 
         let cancelled = false;
 
+        // 수정 중일 때
         async function loadStudent() {
             setLoading(true);
             try {
@@ -94,6 +97,7 @@ function StudentFormPage() {
         }
 
         try {
+            // 수정
             if (isEditing) {
                 await updateStudent(id, studentData);
             } else {
@@ -106,6 +110,7 @@ function StudentFormPage() {
                 ? "학생 정보가 성공적으로 수정되었습니다."
                 : "학생이 성공적으로 등록되었습니다.";
 
+            // navigate("/"): 목록 페이지로 강제 포워딩
             navigate("/", { state: { message: text } });
         } catch (error) {
             console.error("Error:", error);
