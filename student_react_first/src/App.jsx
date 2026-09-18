@@ -8,7 +8,8 @@ import {
   fetchStudent,
 } from "./api/studentApi";
 import StudentTable from "./components/StudentTable";
-import StudentForm from "./components/StudentForm";
+// import StudentForm from "./components/StudentForm";
+import StudentForm from "./components/StudentFormField";
 import { EMPTY_FORM, toFormValues, toRequest } from "./lib/studentData";
 import { validateStudent } from "../../student_ecma/src/lib/validation";
 import { APP_MODE } from "./config.js";
