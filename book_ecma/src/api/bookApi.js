@@ -1,4 +1,4 @@
-import { BOOKS_URL } from "../config.js";
+import { BOOKS_URL, JSON_HEADERS } from "../config.js";
 
 export async function fetchBooks() {
   const response = await fetch(BOOKS_URL);
