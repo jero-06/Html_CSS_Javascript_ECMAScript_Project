@@ -13,6 +13,7 @@
    --------------------------------------------------------- */
 
 import { memo } from "react";
+import { Link } from "react-router-dom";
 
 // 표의 열 개수. colSpan 에 쓴다.
 const COLUMN_COUNT = 7;
@@ -23,76 +24,92 @@ const COLUMN_COUNT = 7;
      error     목록을 못 불러왔을 때의 메시지 (없으면 null)
      onEdit    수정 버튼을 눌렀을 때 부를 함수
      onDelete  삭제 버튼을 눌렀을 때 부를 함수 */
-function StudentTable({ students, loading, error, onEdit, onDelete }) {
-    /* tbody 안에 무엇을 그릴지 세 경우로 나눠서 정한다.
+function StudentTable({ students, loading, error, onDelete }) {
+  /* tbody 안에 무엇을 그릴지 세 경우로 나눠서 정한다.
        JSX 안에 && 와 ? : 를 이어 쓰면 읽기 어려우므로,
        먼저 rows 에 담아 두고 아래 표 안에 끼워 넣는다. */
-    let rows;
+  let rows;
 
-    if (error) {
-        // (1) 목록을 못 불러왔다
-        rows = (
-            <tr>
-                <td colSpan={COLUMN_COUNT} className="error-row">{error}</td>
-            </tr>
-        );
-    } else if (students.length === 0 && !loading) {
-        // (2) 목록이 비었다. 불러오는 중일 때는 안내를 내지 않는다.
-        //     그래야 화면이 잠깐 깜빡이지 않는다.
-        rows = (
-            <tr>
-                <td colSpan={COLUMN_COUNT} className="empty-row">등록된 학생이 없습니다.</td>
-            </tr>
-        );
-    } else {
-        // (3) 학생 한 명을 행 하나로 그린다.
-        //     map 은 배열의 값 하나하나를 화면 조각으로 바꿔 준다.
-        rows = students.map((student) => (
-            // key 는 React 가 어느 행이 어느 행인지 알아보는 표시다.
-            // 없으면 목록이 바뀔 때 엉뚱한 행이 다시 그려질 수 있다.
-            <tr key={student.id}>
-                <td>{student.name}</td>
-                <td>{student.studentNumber}</td>
-                <td>{student.detail?.address ?? "-"}</td>
-                <td>{student.detail?.phoneNumber ?? "-"}</td>
-                <td>{student.detail?.email ?? "-"}</td>
-                <td>{student.detail?.dateOfBirth ?? "-"}</td>
-                <td>
-                    {/* data-id 도 Number(id) 도 필요 없다. id 를 그대로 넘긴다.
+  if (error) {
+    // (1) 목록을 못 불러왔다
+    rows = (
+      <tr>
+        <td colSpan={COLUMN_COUNT} className="error-row">
+          {error}
+        </td>
+      </tr>
+    );
+  } else if (students.length === 0 && !loading) {
+    // (2) 목록이 비었다. 불러오는 중일 때는 안내를 내지 않는다.
+    //     그래야 화면이 잠깐 깜빡이지 않는다.
+    rows = (
+      <tr>
+        <td colSpan={COLUMN_COUNT} className="empty-row">
+          등록된 학생이 없습니다.
+        </td>
+      </tr>
+    );
+  } else {
+    // (3) 학생 한 명을 행 하나로 그린다.
+    //     map 은 배열의 값 하나하나를 화면 조각으로 바꿔 준다.
+    rows = students.map((student) => (
+      // key 는 React 가 어느 행이 어느 행인지 알아보는 표시다.
+      // 없으면 목록이 바뀔 때 엉뚱한 행이 다시 그려질 수 있다.
+      <tr key={student.id}>
+        <td>{student.name}</td>
+        <td>{student.studentNumber}</td>
+        <td>{student.detail?.address ?? "-"}</td>
+        <td>{student.detail?.phoneNumber ?? "-"}</td>
+        <td>{student.detail?.email ?? "-"}</td>
+        <td>{student.detail?.dateOfBirth ?? "-"}</td>
+        <td>
+          {/* data-id 도 Number(id) 도 필요 없다. id 를 그대로 넘긴다.
                         onClick 에는 함수를 "넘겨야" 한다. onEdit(student.id) 라고
                         쓰면 그리는 순간 바로 실행되므로 () => 로 감싼다. */}
-                    <button type="button" className="edit-btn"
-                            onClick={() => onEdit(student.id)}>수정</button>
-                    <button type="button" className="delete-btn"
-                            onClick={() => onDelete(student.id)}>삭제</button>
-                </td>
-            </tr>
-        ));
-    }
+          {/* <button type="button" className="edit-btn"
+                            onClick={() => onEdit(student.id)}>수정</button> */}
 
-    return (
-        <div className="table-container">
-            <h2>학생 목록</h2>
+          {/* to 에 넣은 주소로 옮겨 간다. /edit/3 처럼 만들어진다.
+                주소가 바뀌면 StudentFormPage 가 useParams 로 3 을 읽는다. */}
+          <Link to={`/edit/${student.id}`} className="edit-btn">
+            수정
+          </Link>
 
-            {/* 4부 setLoading() 대신 조건부 렌더링을 쓴다. */}
-            {loading && <div className="loading">로딩 중...</div>}
+          <button
+            type="button"
+            className="delete-btn"
+            onClick={() => onDelete(student.id)}
+          >
+            삭제
+          </button>
+        </td>
+      </tr>
+    ));
+  }
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>이름</th>
-                        <th>학번</th>
-                        <th>주소</th>
-                        <th>전화번호</th>
-                        <th>이메일</th>
-                        <th>생년월일</th>
-                        <th>액션</th>
-                    </tr>
-                </thead>
-                <tbody>{rows}</tbody>
-            </table>
-        </div>
-    );
+  return (
+    <div className="table-container">
+      <h2>학생 목록</h2>
+
+      {/* 4부 setLoading() 대신 조건부 렌더링을 쓴다. */}
+      {loading && <div className="loading">로딩 중...</div>}
+
+      <table>
+        <thead>
+          <tr>
+            <th>이름</th>
+            <th>학번</th>
+            <th>주소</th>
+            <th>전화번호</th>
+            <th>이메일</th>
+            <th>생년월일</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </table>
+    </div>
+  );
 }
 
 /* 받은 props 가 그대로면 다시 그리지 않는다(실습 5-13).
