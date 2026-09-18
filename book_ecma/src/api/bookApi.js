@@ -18,7 +18,7 @@ async function request(url, options = {}) {
       const errorData = await response.json();
       message = errorData.message;
     } catch {
-      // 서버가 JSON을 안 줬을 수도 있으니 그냥 넘어간다
+      // 서버가 JSON을 안 줬을 수도 있으니 넘어간다
     }
 
     if (!message) {
