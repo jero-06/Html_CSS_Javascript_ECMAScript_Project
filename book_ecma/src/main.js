@@ -8,7 +8,6 @@ import {
 } from "./api/bookApi.js";
 
 // 전역 변수
-const API_BASE_URL = "http://localhost:8080";
 let editingBookId = null; // 현재 수정 중인 도서 ID
 
 // DOM 요소 참조
