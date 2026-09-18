@@ -23,7 +23,7 @@ async function request(url, options = {}) {
 
     if (!message) {
       const defaultMessages = {
-        400: "입력값을 확인해주세요", 
+        400: "입력값을 확인해주세요",
         404: "존재하지 않는 도서입니다.",
         409: "이미 등록된 ISBN입니다.",
         500: "서버 오류가 발생했습니다.",
@@ -40,3 +40,23 @@ async function request(url, options = {}) {
 
   return response.json();
 }
+
+export const fetchBooks = () => request(BOOKS_URL);
+export const fetchBook = (id) => request(`${BOOKS_URL}/${id}`);
+export const createBook = (book) =>
+  request(BOOKS_URL, {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(book),
+  });
+export const updateBook = (id, book) =>
+  request(`${BOOKS_URL}/${id}`, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(book),
+  });
+export const deleteBook = (id) =>
+  request(`${BOOKS_URL}/${id}`, {
+    method: "DELETE",
+    headers: JSON_HEADERS,
+  });
