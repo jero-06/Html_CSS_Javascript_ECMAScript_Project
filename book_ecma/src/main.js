@@ -134,21 +134,18 @@ function isValidUrl(string) {
 }
 
 // 도서 목록 로드 함수
-function loadBooks() {
-    fetch(`${API_BASE_URL}/api/books`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('도서 목록을 불러오는데 실패했습니다.');
-            }
-            return response.json();
-        })
-        .then(books => {
-            renderBookTable(books);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('도서 목록을 불러오는데 실패했습니다.');
-        });
+async function loadBooks() {
+  loadingMessage.style.display = "block";   // 로딩 표시(#loadingMessage) 켜기
+
+  try {
+    const books = await fetchBooks();      // fetchBooks() 를 호출해서 기다린다
+    renderBookTable(books);       // 표 그리는 기존 코드는 그대로 재사용
+  } catch (error) {
+    console.error(error);
+    alert("도서 목록을 불러오는데 실패했습니다.");
+  } finally {
+    loadingMessage.style.display = "none";   // 로딩 표시 끄기 — 성공하든 실패하든 항상 실행
+  }
 }
 
 // 도서 테이블 렌더링
@@ -300,7 +297,6 @@ function showBookDetail(bookId) {
             alert('도서 정보를 불러오는데 실패했습니다.');
         });
 }
-fetchBooks().then(console.log);
 
 // 폼 초기화 함수
 function resetForm() {
