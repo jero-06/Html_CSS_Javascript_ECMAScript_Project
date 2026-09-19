@@ -24,3 +24,39 @@ export function collectBookData() {
   };
   return bookData;
 }
+
+export const submitButton = document.getElementById("submitButton");
+export const cancelButton = document.getElementById("cancelButton");
+
+export function fillForm(book) {
+  bookForm.title.value = book.title ?? "";
+  bookForm.author.value = book.author ?? "";
+  bookForm.isbn.value = book.isbn ?? "";
+  bookForm.price.value = book.price ?? "";
+  bookForm.publishDate.value = book.publishDate ?? "";
+  bookForm.description.value = book.bookDetail?.description ?? "";
+  bookForm.language.value = book.bookDetail?.language ?? "";
+  bookForm.pageCount.value = book.bookDetail?.pageCount ?? "";
+  bookForm.publisher.value = book.bookDetail?.publisher ?? "";
+  bookForm.coverImageUrl.value = book.bookDetail?.coverImageUrl ?? "";
+  bookForm.edition.value = book.bookDetail?.edition ?? "";
+}
+
+export function setEditMode(isEditing) {
+  if (isEditing) {
+    submitButton.textContent = "도서 수정";
+    cancelButton.style.display = "inline-block";
+  } else {
+    submitButton.textContent = "도서 등록";
+    cancelButton.style.display = "none";
+  }
+}
+
+export function resetForm() {
+  bookForm.reset();
+  setEditMode(false);
+}
+
+export function scrollToForm() {
+  bookForm.scrollIntoView({ behavior: "smooth" });
+}
