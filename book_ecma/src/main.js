@@ -186,3 +186,8 @@ cancelButton.addEventListener("click", () => {
   editingBookId = null;
   resetForm();
 });
+
+// 임시 — 과제 10에서 반드시 지웁니다
+window.editBook = editBook;
+window.deleteBook = deleteBook;
+window.showBookDetail = showBookDetail;
