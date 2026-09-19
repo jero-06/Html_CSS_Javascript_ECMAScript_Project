@@ -6,8 +6,17 @@ import {
   updateBook as apiUpdateBook,
   deleteBook as apiDeleteBook,
 } from "./api/bookApi.js";
-import { bookForm, collectBookData } from "./ui/bookForm.js";
+import {
+  bookForm,
+  collectBookData,
+  cancelButton,
+  fillForm,
+  setEditMode,
+  resetForm,
+  scrollToForm,
+} from "./ui/bookForm.js";
 import { validateBook } from "./lib/validation.js";
+import { showError, showSuccess, setLoading } from "./ui/message.js";
 
 // 전역 변수
 let editingBookId = null; // 현재 수정 중인 도서 ID
@@ -32,7 +41,7 @@ bookForm.addEventListener("submit", function (e) {
   // 유효성 검사
   const message = validateBook(bookData);
   if (message) {
-    alert(message);
+    showError(message);
     return;
   }
 
@@ -48,7 +57,7 @@ bookForm.addEventListener("submit", function (e) {
 async function createBook(bookData) {
   try {
     await apiCreateBook(bookData);
-    alert("도서가 성공적으로 등록되었습니다.");
+    showSuccess("도서가 성공적으로 등록되었습니다.");
     bookForm.reset();
     loadBooks(); // 목록 새로고침
   } catch (error) {
@@ -66,7 +75,7 @@ async function loadBooks() {
     renderBookTable(books); // 표 그리는 기존 코드는 그대로 재사용
   } catch (error) {
     console.error(error);
-    alert("도서 목록을 불러오는데 실패했습니다.");
+    showError("도서 목록을 불러오는데 실패했습니다.");
   } finally {
     loadingMessage.style.display = "none"; // 로딩 표시 끄기 — 성공하든 실패하든 항상 실행
   }
@@ -109,11 +118,11 @@ async function deleteBook(bookId) {
 
   try {
     await apiDeleteBook(bookId);
-    alert("도서가 성공적으로 삭제되었습니다.");
+    showSuccess("도서가 성공적으로 삭제되었습니다.");
     loadBooks(); // 목록 새로고침
   } catch (error) {
     console.error("Error:", error);
-    alert("도서 삭제에 실패했습니다.");
+    showError("도서 삭제에 실패했습니다.");
   }
 }
 
@@ -122,32 +131,13 @@ async function editBook(bookId) {
   try {
     const book = await fetchBook(bookId); // fetchBook을 호출하고 결과를 기다린다
 
-    // 폼에 기본 도서 정보 채우기
-    bookForm.title.value = book.title;
-    bookForm.author.value = book.author;
-    bookForm.isbn.value = book.isbn;
-    bookForm.price.value = book.price || "";
-    bookForm.publishDate.value = book.publishDate || "";
-
-    // 폼에 상세 정보 채우기
-    if (book.bookDetail) {
-      bookForm.description.value = book.bookDetail.description || "";
-      bookForm.language.value = book.bookDetail.language || "";
-      bookForm.pageCount.value = book.bookDetail.pageCount || "";
-      bookForm.publisher.value = book.bookDetail.publisher || "";
-      bookForm.coverImageUrl.value = book.bookDetail.coverImageUrl || "";
-      bookForm.edition.value = book.bookDetail.edition || "";
-    }
-
-    // 수정 모드로 설정
+    fillForm(book);
     editingBookId = bookId;
-    submitButton.textContent = "도서 수정";
-
-    // 폼으로 스크롤
-    bookForm.scrollIntoView({ behavior: "smooth" });
+    setEditMode(true);
+    scrollToForm();
   } catch (error) {
     console.error("Error:", error);
-    alert("도서 정보를 불러오는데 실패했습니다.");
+    showError("도서 정보를 불러오는데 실패했습니다.");
   }
 }
 
@@ -155,12 +145,13 @@ async function editBook(bookId) {
 async function updateBook(bookId, bookData) {
   try {
     await apiUpdateBook(bookId, bookData);
-    alert("도서 정보가 성공적으로 수정되었습니다.");
+    showSuccess("도서 정보가 성공적으로 수정되었습니다.");
+    editingBookId = null;
     resetForm();
     loadBooks(); // 목록 새로고침
   } catch (error) {
     console.error("Error:", error);
-    alert("도서 정보 수정에 실패했습니다.");
+    showError("도서 정보 수정에 실패했습니다.");
   }
 }
 
@@ -191,9 +182,7 @@ async function showBookDetail(bookId) {
   }
 }
 
-// 폼 초기화 함수
-function resetForm() {
-  bookForm.reset();
+cancelButton.addEventListener("click", () => {
   editingBookId = null;
-  submitButton.textContent = "도서 등록";
-}
+  resetForm();
+});
