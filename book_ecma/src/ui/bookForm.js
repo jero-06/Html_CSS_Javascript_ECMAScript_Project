@@ -34,12 +34,12 @@ export function fillForm(book) {
   bookForm.isbn.value = book.isbn ?? "";
   bookForm.price.value = book.price ?? "";
   bookForm.publishDate.value = book.publishDate ?? "";
-  bookForm.description.value = book.bookDetail?.description ?? "";
-  bookForm.language.value = book.bookDetail?.language ?? "";
-  bookForm.pageCount.value = book.bookDetail?.pageCount ?? "";
-  bookForm.publisher.value = book.bookDetail?.publisher ?? "";
-  bookForm.coverImageUrl.value = book.bookDetail?.coverImageUrl ?? "";
-  bookForm.edition.value = book.bookDetail?.edition ?? "";
+  bookForm.description.value = book.detail?.description ?? "";
+  bookForm.language.value = book.detail?.language ?? "";
+  bookForm.pageCount.value = book.detail?.pageCount ?? "";
+  bookForm.publisher.value = book.detail?.publisher ?? "";
+  bookForm.coverImageUrl.value = book.detail?.coverImageUrl ?? "";
+  bookForm.edition.value = book.detail?.edition ?? "";
 }
 
 export function setEditMode(isEditing) {

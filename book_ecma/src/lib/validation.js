@@ -20,11 +20,11 @@ export function validateBook(book) {
     return "가격은 0 이상이어야 합니다.";
   }
 
-  if (book.bookDetail.pageCount !== null && book.bookDetail.pageCount < 0) {
+  if (book.detail.pageCount !== null && book.detail.pageCount < 0) {
     return "페이지 수는 0 이상이어야 합니다.";
   }
 
-  if (book.bookDetail.coverImageUrl && !isValidUrl(book.bookDetail.coverImageUrl)) {
+  if (book.detail.coverImageUrl && !isValidUrl(book.detail.coverImageUrl)) {
     return "올바른 이미지 URL 형식이 아닙니다.";
   }
 

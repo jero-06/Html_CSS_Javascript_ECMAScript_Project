@@ -14,12 +14,12 @@ export function formatBookDetail(book) {
   const author = book.author || "-";
   const isbn = book.isbn || "-";
   const publishDate = book.publishDate || "-";
-  const description = book.bookDetail?.description || "-";
-  const language = book.bookDetail?.language || "-";
-  const pageCount = book.bookDetail?.pageCount ?? "-";
-  const publisher = book.bookDetail?.publisher || "-";
-  const edition = book.bookDetail?.edition || "-";
-  const coverImageUrl = book.bookDetail?.coverImageUrl || "-";
+  const description = book.detail?.description || "-";
+  const language = book.detail?.language || "-";
+  const pageCount = book.detail?.pageCount ?? "-";
+  const publisher = book.detail?.publisher || "-";
+  const edition = book.detail?.edition || "-";
+  const coverImageUrl = book.detail?.coverImageUrl || "-";
 
   return `[도서 상세 정보]
 제목: ${title}

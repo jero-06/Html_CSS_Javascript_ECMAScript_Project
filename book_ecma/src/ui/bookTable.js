@@ -26,7 +26,7 @@ export function createBookRow(book) {
   // 가격 및 날짜 포맷팅
   const formattedPrice = book.price ? `₩${book.price.toLocaleString()}` : "-";
   const formattedDate = book.publishDate || "-";
-  const publisher = book.bookDetail ? book.bookDetail.publisher || "-" : "-";
+  const publisher = book.detail ? book.detail.publisher || "-" : "-";
 
   row.innerHTML = `
     <td class="cell-tiltle"></td>
