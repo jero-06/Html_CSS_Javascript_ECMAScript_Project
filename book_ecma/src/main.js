@@ -15,8 +15,16 @@ import {
   resetForm,
   scrollToForm,
 } from "./ui/bookForm.js";
+import {
+  bookTableBody,
+  renderBookTable,
+  renderTableError,
+} from "./ui/bookTable.js";
+import { formatBookDetail } from "./ui/bookDetail.js";
+
 import { validateBook } from "./lib/validation.js";
 import { showError, showSuccess, setLoading } from "./ui/message.js";
+import { Action } from "../../todolist_react_router/node_modules/react-router/dist/development/chunk-GR4NQCSD";
 
 // 전역 변수
 let editingBookId = null; // 현재 수정 중인 도서 ID
@@ -29,6 +37,30 @@ const submitButton = bookForm.querySelector('button[type="submit"]');
 document.addEventListener("DOMContentLoaded", function () {
   console.log("페이지 로드 완료");
   loadBooks();
+});
+
+// 이벤트 위임
+bookTableBody.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-action]");
+
+  // 버튼 아닌 공간 클릭 시 액션 X
+  if (!button) return;
+
+  const id = Number(button.dataset.id);
+  const action = button.dataset.action;
+
+  // data-action값에 맞는 함수 호출
+  if (action === "edit") {
+    editBook(id);
+  }
+
+  if (action === "delete") {
+    deleteBook(id);
+  }
+
+  if (action === "detail") {
+    showBookDetail(id);
+  }
 });
 
 // 폼 제출 이벤트 핸들러
@@ -88,24 +120,6 @@ function renderBookTable(books) {
   books.forEach((book) => {
     const row = document.createElement("tr");
 
-    const formattedPrice = book.price ? `₩${book.price.toLocaleString()}` : "-";
-    const formattedDate = book.publishDate || "-";
-    const publisher = book.bookDetail ? book.bookDetail.publisher || "-" : "-";
-
-    row.innerHTML = `
-            <td>${book.title}</td>
-            <td>${book.author}</td>
-            <td>${book.isbn}</td>
-            <td>${formattedPrice}</td>
-            <td>${formattedDate}</td>
-            <td>${publisher}</td>
-            <td>
-                <button class="edit-btn" onclick="editBook(${book.id})">수정</button>
-                <button class="delete-btn" onclick="deleteBook(${book.id})">삭제</button>
-                <button class="detail-btn" onclick="showBookDetail(${book.id})">상세</button>
-            </td>
-        `;
-
     bookTableBody.appendChild(row);
   });
 }
@@ -156,28 +170,12 @@ async function updateBook(bookId, bookData) {
 }
 
 // 도서 상세보기 함수
-async function showBookDetail(bookId) {
+async function showBookDetail(id) {
   try {
-    const book = await fetchBook(bookId); // fetchBook을 호출하고 결과를 기다린다
-
-    let detailInfo = `제목: ${book.title}\n`;
-    detailInfo += `저자: ${book.author}\n`;
-    detailInfo += `ISBN: ${book.isbn}\n`;
-    detailInfo += `가격: ${book.price ? "₩" + book.price.toLocaleString() : "-"}\n`;
-    detailInfo += `출판일: ${book.publishDate || "-"}\n\n`;
-
-    if (book.bookDetail) {
-      detailInfo += `설명: ${book.bookDetail.description || "-"}\n`;
-      detailInfo += `언어: ${book.bookDetail.language || "-"}\n`;
-      detailInfo += `페이지 수: ${book.bookDetail.pageCount || "-"}\n`;
-      detailInfo += `출판사: ${book.bookDetail.publisher || "-"}\n`;
-      detailInfo += `에디션: ${book.bookDetail.edition || "-"}\n`;
-      detailInfo += `표지 이미지: ${book.bookDetail.coverImageUrl || "-"}`;
-    }
-
-    alert(detailInfo);
+    const book = await fetchBookDetailApi(id);
+    const detailText = formatBookDetail(book);
+    alert(detailText);
   } catch (error) {
-    console.error("Error:", error);
     alert("도서 정보를 불러오는데 실패했습니다.");
   }
 }
@@ -186,8 +184,3 @@ cancelButton.addEventListener("click", () => {
   editingBookId = null;
   resetForm();
 });
-
-// 임시 — 과제 10에서 반드시 지웁니다
-window.editBook = editBook;
-window.deleteBook = deleteBook;
-window.showBookDetail = showBookDetail;
