@@ -4,6 +4,10 @@ const loadingMessage = document.getElementById("loadingMessage");
 let successTimeoutId = null;
 
 export function showError(message) {
+  if (successTimeoutId) {
+    clearTimeout(successTimeoutId);
+    successTimeoutId = null;
+  }
   formError.textContent = message;
 }
 
