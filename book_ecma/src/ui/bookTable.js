@@ -29,21 +29,30 @@ export function createBookRow(book) {
   const publisher = book.bookDetail ? book.bookDetail.publisher || "-" : "-";
 
   row.innerHTML = `
-            <td class="cell-tiltle"></td>
-            <td>class="cell-author"</td>
-            <td>class="cell-isbn"</td>
-            <td>${formattedPrice}</td>
-            <td>${formattedDate}</td>
-            <td>${publisher}</td>
-            <td>
-                <button type="button" class="edit-btn" data-action="edit" data-id=${book.id}>수정</button>
-                <button type="button" class="delete-btn" data-action="delete" data-id=${book.id}>삭제</button>
-                <button type="button" class="detail-btn" data-action="detail" data-id=${book.id}>상세</button>
-            </td>
-        `;
+    <td class="cell-tiltle"></td>
+    <td class="cell-author"></td>
+    <td class="cell-isbn"></td>
+    <td>${formattedPrice}</td>
+    <td>${formattedDate}</td>
+    <td>${publisher}</td>
+    <td>
+        <button type="button" class="edit-btn" data-action="edit" data-id="${book.id}">수정</button>
+        <button type="button" class="delete-btn" data-action="delete" data-id="${book.id}">삭제</button>
+        <button type="button" class="detail-btn" data-action="detail" data-id="${book.id}">상세</button>
+    </td>
+`;
   row.querySelector(".cell-tiltle").textContent = book.title;
   row.querySelector(".cell-author").textContent = book.author;
   row.querySelector(".cell-isbn").textContent = book.isbn;
 
+  return row;
+}
+function createMessageRow(message, className = "") {
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 7; // 표의 열 개수만큼
+  cell.textContent = message;
+  if (className) cell.classList.add(className);
+  row.appendChild(cell);
   return row;
 }

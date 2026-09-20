@@ -24,13 +24,11 @@ import { formatBookDetail } from "./ui/bookDetail.js";
 
 import { validateBook } from "./lib/validation.js";
 import { showError, showSuccess, setLoading } from "./ui/message.js";
-import { Action } from "../../todolist_react_router/node_modules/react-router/dist/development/chunk-GR4NQCSD";
 
 // 전역 변수
 let editingBookId = null; // 현재 수정 중인 도서 ID
 
 // DOM 요소 참조
-const bookTableBody = document.getElementById("bookTableBody");
 const submitButton = bookForm.querySelector('button[type="submit"]');
 
 // 초기화
@@ -94,7 +92,7 @@ async function createBook(bookData) {
     loadBooks(); // 목록 새로고침
   } catch (error) {
     console.error("Error:", error);
-    alert("도서 등록에 실패했습니다.");
+    showError("도서 등록에 실패했습니다.");
   }
 }
 
@@ -108,20 +106,10 @@ async function loadBooks() {
   } catch (error) {
     console.error(error);
     showError("도서 목록을 불러오는데 실패했습니다.");
+    renderTableError("도서 목록을 불러오는데 실패했습니다.");
   } finally {
     loadingMessage.style.display = "none"; // 로딩 표시 끄기 — 성공하든 실패하든 항상 실행
   }
-}
-
-// 도서 테이블 렌더링
-function renderBookTable(books) {
-  bookTableBody.innerHTML = "";
-
-  books.forEach((book) => {
-    const row = document.createElement("tr");
-
-    bookTableBody.appendChild(row);
-  });
 }
 
 // 도서 삭제 함수
@@ -172,10 +160,11 @@ async function updateBook(bookId, bookData) {
 // 도서 상세보기 함수
 async function showBookDetail(id) {
   try {
-    const book = await fetchBookDetailApi(id);
+    const book = await fetchBook(id);
     const detailText = formatBookDetail(book);
     alert(detailText);
   } catch (error) {
+    console.error("Error:", error);
     alert("도서 정보를 불러오는데 실패했습니다.");
   }
 }

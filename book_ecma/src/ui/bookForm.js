@@ -1,5 +1,5 @@
 // src/ui/bookForm.js
-export const bookForm = document.getElementById("bookForm");
+export const bookForm = document.querySelector('button[type="submit"]');
 
 export function collectBookData() {
   // 폼 데이터 수집
