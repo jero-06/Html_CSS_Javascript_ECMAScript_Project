@@ -1,0 +1,1660 @@
+# KDSQ 인지선별검사 플랫폼 — React 컴포넌트와 Props/State 설계서
+
+---
+
+## 1. 설계 범위 및 기준
+
+### 1.1 프로젝트 핵심 기능
+
+| 기능 | 화면 | 핵심 컴포넌트/상태 |
+|---|---|---|
+| 로그인 | `/login` | LoginForm, authStore |
+| 회원가입 | `/register` | RegisterForm, ProfileFields, authStore |
+| KDSQ-P 1차 검사 | `/surveys` | SurveyHeader, QuestionList, QuestionItem, ExamNavigation, examStore |
+| KDSQ-C 2차 검사 | `/surveys/detail` | SurveyHeader, QuestionList, QuestionItem, ExamNavigation, examStore |
+| 검사 결과 | `/results` | ResultSummary, ScoreBreakdown, RiskBadge, SolutionCard |
+| 마이페이지 | `/mypage` | ProfileCard, ExamHistory, ScoreTrendChart, profileStore/examStore |
+| 통계 비교 | `/statistics` | StatisticsSummary, ComparisonChart, ScorePosition |
+| 공통 | 전체 | Header, ProtectedRoute, Loading, ErrorMessage, ConfirmDialog |
+
+### 1.2 상태 관리 원칙
+
+- **Zustand 전역 상태**
+  - 로그인 사용자 인증 정보
+  - 현재 검사에 필요한 설문/문항 데이터
+  - 검사 진행 결과 및 서버 응답
+  - 검사 이력 및 통계처럼 여러 화면에서 공유할 데이터
+- **useState 로컬 상태**
+  - 로그인/회원가입 입력값
+  - 현재 선택한 문항 답변
+  - 다이얼로그 열림/닫힘
+  - 버튼의 일시적인 제출 상태
+  - 검색/필터 등 해당 화면에서만 필요한 UI 상태
+- 서버 데이터는 Axios API 함수 → Zustand Store → Page/Component 순서로 전달한다.
+- 형제 컴포넌트 간 직접 통신은 하지 않고 공통 부모에서 상태를 관리한다.
+
+---
+
+# 2. 전체 컴포넌트 계층 구조
+
+```text
+App
+├── Header
+│   ├── Logo
+│   ├── Navigation
+│   └── UserMenu
+│
+├── Routes
+│   ├── /login
+│   │   └── LoginPage
+│   │       └── LoginForm
+│   │
+│   ├── /register
+│   │   └── RegisterPage
+│   │       ├── RegisterForm
+│   │       └── ProfileFields
+│   │
+│   ├── /surveys                 [ProtectedRoute]
+│   │   └── SurveyPage
+│   │       ├── SurveyHeader
+│   │       ├── ProgressIndicator
+│   │       ├── QuestionList
+│   │       │   └── QuestionItem
+│   │       └── ExamNavigation
+│   │
+│   ├── /surveys/detail         [ProtectedRoute]
+│   │   └── SurveyDetailPage
+│   │       ├── SurveyHeader
+│   │       ├── ProgressIndicator
+│   │       ├── QuestionList
+│   │       │   └── QuestionItem
+│   │       └── ExamNavigation
+│   │
+│   ├── /results                [ProtectedRoute]
+│   │   └── ResultPage
+│   │       ├── ResultSummary
+│   │       ├── RiskBadge
+│   │       ├── ScoreBreakdown
+│   │       └── SolutionCard
+│   │
+│   ├── /mypage                [ProtectedRoute]
+│   │   └── MyPage
+│   │       ├── ProfileCard
+│   │       ├── ExamHistory
+│   │       └── ScoreTrendChart
+│   │
+│   └── /statistics            [ProtectedRoute]
+│       └── StatisticsPage
+│           ├── StatisticsSummary
+│           ├── ComparisonChart
+│           └── ScorePosition
+│
+└── 공통 UI
+    ├── Button
+    ├── Input
+    ├── Select
+    ├── Badge
+    ├── LoadingSpinner
+    ├── ErrorMessage
+    ├── ConfirmDialog
+    └── EmptyState
+```
+
+---
+
+# 3. 폴더 및 파일 구조
+
+```text
+src/
+├── components/
+│   ├── common/
+│   │   ├── Button.jsx
+│   │   ├── Input.jsx
+│   │   ├── Select.jsx
+│   │   ├── LoadingSpinner.jsx
+│   │   ├── ErrorMessage.jsx
+│   │   ├── EmptyState.jsx
+│   │   └── ConfirmDialog.jsx
+│   ├── layout/
+│   │   ├── Header.jsx
+│   │   ├── Navigation.jsx
+│   │   └── ProtectedRoute.jsx
+│   └── result/
+│       ├── RiskBadge.jsx
+│       └── ScoreBreakdown.jsx
+│
+├── pages/
+│   ├── Login/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       └── LoginForm.jsx
+│   ├── Register/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       ├── RegisterForm.jsx
+│   │       └── ProfileFields.jsx
+│   ├── Survey/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       ├── SurveyHeader.jsx
+│   │       ├── ProgressIndicator.jsx
+│   │       ├── QuestionList.jsx
+│   │       ├── QuestionItem.jsx
+│   │       └── ExamNavigation.jsx
+│   ├── SurveyDetail/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       └── ...
+│   ├── Results/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       ├── ResultSummary.jsx
+│   │       └── SolutionCard.jsx
+│   ├── MyPage/
+│   │   ├── index.jsx
+│   │   └── components/
+│   │       ├── ProfileCard.jsx
+│   │       ├── ExamHistory.jsx
+│   │       └── ScoreTrendChart.jsx
+│   └── Statistics/
+│       ├── index.jsx
+│       └── components/
+│           ├── StatisticsSummary.jsx
+│           ├── ComparisonChart.jsx
+│           └── ScorePosition.jsx
+│
+├── store/
+│   ├── authStore.js
+│   ├── surveyStore.js
+│   ├── examStore.js
+│   ├── memberStore.js
+│   └── statisticsStore.js
+│
+├── api/
+│   ├── axiosInstance.js
+│   ├── authApi.js
+│   ├── surveyApi.js
+│   ├── examApi.js
+│   ├── memberApi.js
+│   └── statisticsApi.js
+│
+├── hooks/
+│   └── useExamSubmit.js
+│
+└── App.jsx
+```
+
+---
+
+# 4. 공통 컴포넌트 설계
+
+## 4.1 Header
+
+**파일:** `components/layout/Header.jsx`
+
+### 책임
+- 서비스 로고/서비스명 표시
+- 주요 페이지 이동
+- 로그인 사용자 상태 표시
+- 로그아웃 처리
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `isAuthenticated` | `bool` | X | 로그인 여부 |
+| `email` | `string` | X | 로그인 사용자 이메일 |
+| `onLogout` | `func` | X | 로그아웃 이벤트 |
+| `className` | `string` | X | 추가 스타일 |
+
+### Local State
+- 별도 상태 없음
+- 인증 정보는 `authStore`에서 조회
+
+---
+
+## 4.2 ProtectedRoute
+
+**파일:** `components/layout/ProtectedRoute.jsx`
+
+### 책임
+- 인증이 필요한 페이지 접근 제어
+- 토큰이 없으면 `/login`으로 이동
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `children` | `node` | O | 보호할 페이지 |
+
+### State
+- 없음
+- `authStore.token`을 사용
+
+### 처리
+
+```text
+token 존재
+ ├─ YES → children 렌더링
+ └─ NO  → /login Redirect
+```
+
+---
+
+## 4.3 Button
+
+**파일:** `components/common/Button.jsx`
+
+| Prop | 타입 | 기본값 | 설명 |
+|---|---|---|---|
+| `children` | `node` | - | 버튼 내용 |
+| `variant` | `string` | `primary` | primary / secondary / danger |
+| `size` | `string` | `medium` | small / medium / large |
+| `disabled` | `bool` | `false` | 비활성화 여부 |
+| `loading` | `bool` | `false` | 처리 중 여부 |
+| `type` | `string` | `button` | button / submit / reset |
+| `onClick` | `func` | - | 클릭 이벤트 |
+| `className` | `string` | `''` | 추가 클래스 |
+
+---
+
+## 4.4 LoadingSpinner
+
+**파일:** `components/common/LoadingSpinner.jsx`
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `size` | `string` | X | small / medium / large |
+| `message` | `string` | X | 로딩 안내 문구 |
+
+### State
+- 없음
+
+---
+
+## 4.5 ErrorMessage
+
+**파일:** `components/common/ErrorMessage.jsx`
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `message` | `string` | O | 오류 메시지 |
+| `onRetry` | `func` | X | 재시도 이벤트 |
+
+---
+
+# 5. 인증 관련 컴포넌트
+
+## 5.1 LoginPage
+
+**URL:** `/login`
+
+### 책임
+- 이메일/비밀번호 입력
+- 로그인 API 호출
+- 로그인 성공 시 검사 화면으로 이동
+
+### Local State
+
+| State | 타입 | 초기값 | 설명 |
+|---|---|---|---|
+| `email` | `string` | `''` | 로그인 이메일 |
+| `password` | `string` | `''` | 비밀번호 |
+| `isSubmitting` | `bool` | `false` | 로그인 요청 중 |
+| `errorMessage` | `string \| null` | `null` | 로그인 오류 |
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `onLoginSuccess` | `func` | X | 로그인 성공 후 콜백 |
+
+---
+
+## 5.2 LoginForm
+
+**파일:** `pages/Login/components/LoginForm.jsx`
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `form` | `object` | O | `{ email, password }` |
+| `errors` | `object` | X | 필드별 오류 |
+| `isSubmitting` | `bool` | X | 제출 중 여부 |
+| `onChange` | `func` | O | 입력 변경 |
+| `onSubmit` | `func` | O | 로그인 제출 |
+| `onRegister` | `func` | X | 회원가입 이동 |
+
+### Props 객체 구조
+
+```js
+form = {
+  email: '',
+  password: ''
+}
+```
+
+---
+
+## 5.3 RegisterPage / RegisterForm
+
+**URL:** `/register`
+
+### 입력 데이터
+
+```js
+form = {
+  email: '',
+  password: '',
+  passwordConfirm: '',
+  gender: '',
+  birthYear: '',
+  educationLevel: ''
+}
+```
+
+### Local State
+
+| State | 타입 | 설명 |
+|---|---|---|
+| `form` | `object` | 회원가입 입력값 |
+| `errors` | `object` | 필드별 검증 오류 |
+| `isSubmitting` | `bool` | 가입 요청 중 여부 |
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `form` | `object` | O | 회원가입 폼 데이터 |
+| `errors` | `object` | X | 유효성 검사 오류 |
+| `isSubmitting` | `bool` | X | 제출 상태 |
+| `onChange` | `func` | O | 입력 변경 |
+| `onSubmit` | `func` | O | 회원가입 제출 |
+
+### ProfileFields Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `gender` | `string` | MALE / FEMALE |
+| `birthYear` | `string \| number` | 출생년도 |
+| `educationLevel` | `string` | 학력 |
+| `onChange` | `func` | 값 변경 |
+
+> 도메인 설계서에서 성별은 `MALE`, `FEMALE` Enum으로 정의되어 있으므로 프론트에서도 해당 값을 기준으로 처리한다.
+
+---
+
+# 6. 검사 관련 컴포넌트
+
+## 6.1 SurveyPage
+
+**URL:** `/surveys`
+
+### 책임
+- KDSQ-P 5문항 조회
+- 사용자의 문항 답변 관리
+- 검사 제출
+- 결과에 따라 정상 결과 또는 KDSQ-C 상세 검사로 이동
+
+### Global State
+
+`surveyStore`
+- `survey`
+- `questions`
+- `loading`
+- `error`
+
+`examStore`
+- `answers`
+- `submitting`
+- `result`
+
+### Local State
+
+| State | 타입 | 설명 |
+|---|---|---|
+| `currentQuestion` | `number` | 현재 문항 번호 |
+| `answers` | `object` | 문항별 선택 점수 |
+| `isConfirmOpen` | `bool` | 제출 확인 모달 |
+| `isSubmitting` | `bool` | 제출 중 |
+
+### 주요 이벤트
+
+```text
+문항 선택
+  ↓
+answers 업데이트
+  ↓
+5문항 제출
+  ↓
+POST /api/exams/p
+  ↓
+점수 판정
+  ├─ 0~3점 → /results
+  └─ 4~10점 → /surveys/detail
+```
+
+---
+
+## 6.2 SurveyHeader
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `examType` | `oneOf(['KDSQ_P','KDSQ_C'])` | O | 검사 유형 |
+| `title` | `string` | O | 검사 제목 |
+| `description` | `string` | X | 검사 설명 |
+
+---
+
+## 6.3 ProgressIndicator
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `current` | `number` | O | 현재 문항 |
+| `total` | `number` | O | 전체 문항 |
+| `showLabel` | `bool` | X | 진행률 텍스트 표시 |
+
+### 계산
+
+```js
+progress = Math.round((current / total) * 100);
+```
+
+---
+
+## 6.4 QuestionList
+
+**파일:** `pages/Survey/components/QuestionList.jsx`
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `questions` | `array` | O | Question 배열 |
+| `answers` | `object` | O | 현재 답변 |
+| `onAnswerChange` | `func` | O | 답변 변경 |
+
+### Question 데이터 구조
+
+```js
+{
+  id: 1,
+  surveyId: 1,
+  questionNumber: 1,
+  content: '...',
+  score: 0
+}
+```
+
+---
+
+## 6.5 QuestionItem
+
+### 책임
+- 문항 내용 표시
+- 문항 점수/선택지 표시
+- 사용자의 답변 선택
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `question` | `object` | O | Question 객체 |
+| `selectedScore` | `number \| null` | X | 현재 선택값 |
+| `onChange` | `func` | O | 점수 선택 이벤트 |
+| `disabled` | `bool` | X | 입력 잠금 |
+
+### 예시
+
+```jsx
+<QuestionItem
+  question={question}
+  selectedScore={answers[question.id]}
+  onChange={(score) => handleAnswerChange(question.id, score)}
+/>
+```
+
+---
+
+## 6.6 ExamNavigation
+
+### 책임
+- 이전/다음 문항 이동
+- 최종 제출
+- 진행 가능한지 여부 판단
+
+### Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `currentQuestion` | `number` | 현재 문항 |
+| `totalQuestions` | `number` | 전체 문항 수 |
+| `isFirst` | `bool` | 첫 문항 여부 |
+| `isLast` | `bool` | 마지막 문항 여부 |
+| `canSubmit` | `bool` | 제출 가능 여부 |
+| `isSubmitting` | `bool` | 제출 중 여부 |
+| `onPrevious` | `func` | 이전 |
+| `onNext` | `func` | 다음 |
+| `onSubmit` | `func` | 제출 |
+
+---
+
+# 7. KDSQ-C 상세 검사 컴포넌트
+
+## 7.1 SurveyDetailPage
+
+**URL:** `/surveys/detail`
+
+### 진입 조건
+
+KDSQ-P 결과가 **4~10점**인 경우에만 진입한다.
+
+### State
+
+```js
+{
+  questions: [],
+  answers: {},
+  currentQuestion: 1,
+  isSubmitting: false,
+  error: null
+}
+```
+
+### 제출
+
+```text
+POST /api/exams/c
+       ↓
+ExamResult
+       ↓
+memoryScore
+otherScore
+adlScore
+totalScore
+riskLevel
+       ↓
+/results
+```
+
+### 영역 구분
+
+| 영역 | 문항 | 데이터 |
+|---|---|---|
+| 기억력 | 1~5번 | `memoryScore` |
+| 기타 인지기능 | 6~10번 | `otherScore` |
+| 일상생활수행능력 | 11~15번 | `adlScore` |
+
+> 영역별 점수 계산과 위험도 판정은 도메인 설계서의 `ExamResult.calculateScore()` 및 `evaluateRisk()` 규칙을 따른다.
+
+---
+
+# 8. 검사 결과 컴포넌트
+
+## 8.1 ResultPage
+
+**URL:** `/results`
+
+### 책임
+- 검사 총점 표시
+- 영역별 점수 표시
+- 위험도 표시
+- 고위험군인 경우 맞춤 솔루션 표시
+
+### State
+
+| State | 타입 | 설명 |
+|---|---|---|
+| `result` | `object \| null` | 검사 결과 |
+| `solution` | `object \| null` | 맞춤 솔루션 |
+| `loading` | `bool` | 결과 조회 중 |
+| `error` | `string \| null` | 조회 오류 |
+
+### Result 객체
+
+```js
+{
+  id: 1,
+  memberId: 1,
+  examType: 'KDSQ_C',
+  memoryScore: 3,
+  otherScore: 2,
+  adlScore: 1,
+  totalScore: 6,
+  riskLevel: 'DEMENTIA_SUSPECTED',
+  createdAt: '2026-09-21T10:00:00'
+}
+```
+
+---
+
+## 8.2 ResultSummary
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `result` | `object` | O | ExamResult |
+| `examType` | `string` | O | 검사 유형 |
+
+표시 정보:
+- 검사 유형
+- 검사 일시
+- 총점
+- 위험도
+
+---
+
+## 8.3 RiskBadge
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `riskLevel` | `oneOf(['NORMAL','DEMENTIA_SUSPECTED'])` | O | 위험도 |
+
+### 표시 규칙
+
+| RiskLevel | 표시 |
+|---|---|
+| `NORMAL` | 정상 범위 |
+| `DEMENTIA_SUSPECTED` | 인지기능 저하 의심 / 정밀 검진 권고 |
+
+---
+
+## 8.4 ScoreBreakdown
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `memoryScore` | `number` | O | 기억력 영역 점수 |
+| `otherScore` | `number` | O | 기타 인지기능 영역 점수 |
+| `adlScore` | `number` | O | 일상생활수행능력 영역 점수 |
+| `totalScore` | `number` | O | 총점 |
+
+---
+
+## 8.5 SolutionCard
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `solution` | `object` | O | Solution 객체 |
+| `riskLevel` | `string` | O | 대상 위험도 |
+
+### Solution 객체
+
+```js
+{
+  id: 1,
+  riskLevel: 'DEMENTIA_SUSPECTED',
+  title: '인지 건강 관리 안내',
+  content: '...'
+}
+```
+
+### 표시 조건
+
+```text
+riskLevel === 'DEMENTIA_SUSPECTED'
+    ↓
+SolutionCard 표시
+```
+
+정상 결과에서는 솔루션 카드 대신 일반적인 결과 안내만 표시한다.
+
+---
+
+# 9. 마이페이지 컴포넌트
+
+## 9.1 MyPage
+
+**URL:** `/mypage`
+
+### 주요 기능
+- 회원 정보 조회/수정
+- 과거 검사 이력 조회
+- 날짜별 검사 결과 표시
+- 시계열 점수 추이 표시
+
+### Global State
+
+`memberStore`
+- `profile`
+- `loading`
+- `updateProfile`
+
+`examStore`
+- `history`
+- `fetchHistory`
+
+### Local State
+
+| State | 타입 | 설명 |
+|---|---|---|
+| `isEditMode` | `bool` | 프로필 수정 모드 |
+| `form` | `object` | 수정할 회원 정보 |
+| `selectedResult` | `object \| null` | 선택한 검사 결과 |
+
+---
+
+## 9.2 ProfileCard
+
+### Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `profile` | `object` | Member 정보 |
+| `isEditMode` | `bool` | 수정 모드 |
+| `onEdit` | `func` | 수정 시작 |
+| `onCancel` | `func` | 수정 취소 |
+| `onSave` | `func` | 저장 |
+| `onChange` | `func` | 입력 변경 |
+
+### Member 데이터
+
+```js
+{
+  id: 1,
+  email: 'user@example.com',
+  gender: 'MALE',
+  birthYear: 1960,
+  educationLevel: 'COLLEGE',
+  status: 'ACTIVE'
+}
+```
+
+> 비밀번호는 프로필 조회 화면에 노출하지 않는다.
+
+---
+
+## 9.3 ExamHistory
+
+### Props
+
+| Prop | 타입 | 필수 | 설명 |
+|---|---|---:|---|
+| `results` | `array` | O | 검사 결과 이력 |
+| `onSelect` | `func` | X | 결과 선택 |
+| `loading` | `bool` | X | 조회 중 |
+| `error` | `string \| null` | X | 조회 오류 |
+
+### 표시 컬럼
+
+| 항목 | 데이터 |
+|---|---|
+| 검사일 | `createdAt` |
+| 검사 유형 | `examType` |
+| 기억력 | `memoryScore` |
+| 기타 인지기능 | `otherScore` |
+| ADL | `adlScore` |
+| 총점 | `totalScore` |
+| 판정 | `riskLevel` |
+
+---
+
+## 9.4 ScoreTrendChart
+
+### 책임
+- 날짜별 검사 결과를 시계열 그래프로 표현
+- 개인의 검사 추이 확인
+
+### Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `results` | `array` | 날짜순 검사 결과 |
+| `dataKey` | `string` | 그래프 기준 점수 |
+| `title` | `string` | 그래프 제목 |
+| `height` | `number` | 그래프 높이 |
+
+### 권장 그래프 데이터
+
+```js
+[
+  {
+    date: '2026-08-01',
+    memoryScore: 2,
+    otherScore: 1,
+    adlScore: 0,
+    totalScore: 3
+  },
+  {
+    date: '2026-09-01',
+    memoryScore: 3,
+    otherScore: 2,
+    adlScore: 1,
+    totalScore: 6
+  }
+]
+```
+
+---
+
+# 10. 통계 비교 컴포넌트
+
+## 10.1 StatisticsPage
+
+**URL:** `/statistics`
+
+### 주요 기능
+- 전체 사용자 평균치 조회
+- 본인의 점수와 비교
+- 이상치/평균치 근접 여부를 시각적으로 확인
+
+### State
+
+| State | 타입 | 설명 |
+|---|---|---|
+| `statistics` | `object \| null` | 통계 데이터 |
+| `loading` | `bool` | 조회 중 |
+| `error` | `string \| null` | 오류 |
+| `selectedMetric` | `string` | 비교할 지표 |
+
+### Statistics 데이터 예시
+
+```js
+{
+  myScore: 6,
+  averageScore: 4.2,
+  deviation: 1.8,
+  percentile: 75
+}
+```
+
+> 실제 필드명은 백엔드 API 설계 시 확정하며, 현재 도메인/화면 설계서에서는 통계 API의 상세 응답 구조가 정의되어 있지 않으므로 위 구조는 프론트 상태 설계를 위한 예시이다.
+
+---
+
+## 10.2 StatisticsSummary
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `myScore` | `number` | 본인 점수 |
+| `averageScore` | `number` | 전체 평균 |
+| `deviation` | `number` | 평균과의 차이 |
+| `period` | `string` | 통계 기준 기간(선택) |
+
+---
+
+## 10.3 ComparisonChart
+
+### Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `myScore` | `number` | 본인 점수 |
+| `averageScore` | `number` | 전체 평균 |
+| `title` | `string` | 차트 제목 |
+| `unit` | `string` | 점수 단위 |
+
+### 차트 구성
+
+```text
+전체 사용자 평균 ─────────● 4.2
+내 점수 ───────────────────● 6.0
+```
+
+---
+
+## 10.4 ScorePosition
+
+### Props
+
+| Prop | 타입 | 설명 |
+|---|---|---|
+| `score` | `number` | 본인 점수 |
+| `average` | `number` | 평균 점수 |
+| `deviation` | `number` | 평균 대비 차이 |
+
+### 역할
+- 평균과 본인의 차이를 숫자와 시각적 위치로 표현
+- '정상/고위험군' 판정 자체는 `ExamResult.riskLevel`을 사용한다.
+- 통계 컴포넌트가 독자적으로 위험도를 재판정하지 않는다.
+
+---
+
+# 11. Zustand Store 설계
+
+## 11.1 authStore.js
+
+### State
+
+```js
+{
+  token: null,
+  refreshToken: null,
+  email: null
+}
+```
+
+### Actions
+
+```js
+login(email, password)
+register(userData)
+logout()
+restoreSession()
+```
+
+### 책임
+- JWT 액세스 토큰 관리
+- 리프레시 토큰 관리
+- 로그인 사용자 이메일 관리
+- 로그아웃 처리
+
+---
+
+## 11.2 surveyStore.js
+
+### State
+
+```js
+{
+  currentSurvey: null,
+  questions: [],
+  loading: false,
+  error: null
+}
+```
+
+### Actions
+
+```js
+fetchSurvey(examType)
+clearSurvey()
+```
+
+### 책임
+- KDSQ-P/KDSQ-C 설문 구조 조회
+- Question 목록 저장
+- 설문 조회 상태 관리
+
+---
+
+## 11.3 examStore.js
+
+### State
+
+```js
+{
+  answers: {},
+  currentResult: null,
+  history: [],
+  loading: false,
+  submitting: false,
+  error: null
+}
+```
+
+### Actions
+
+```js
+setAnswer(questionId, score)
+setAnswers(answers)
+clearAnswers()
+
+submitPrimaryExam(answers)
+submitDetailExam(answers)
+
+fetchResult(resultId)
+fetchHistory()
+
+clearCurrentResult()
+```
+
+### 핵심 흐름
+
+```text
+KDSQ-P 제출
+  ↓
+submitPrimaryExam()
+  ↓
+0~3점 → 결과 저장
+4~10점 → KDSQ-C 진행
+  ↓
+KDSQ-C 제출
+  ↓
+calculateScore()
+  ↓
+evaluateRisk()
+  ↓
+currentResult 저장
+```
+
+---
+
+## 11.4 memberStore.js
+
+### State
+
+```js
+{
+  profile: null,
+  loading: false,
+  error: null
+}
+```
+
+### Actions
+
+```js
+fetchMyProfile()
+updateProfile(profileData)
+```
+
+---
+
+## 11.5 statisticsStore.js
+
+### State
+
+```js
+{
+  statistics: null,
+  loading: false,
+  error: null
+}
+```
+
+### Actions
+
+```js
+fetchComparison()
+clearStatistics()
+```
+
+---
+
+# 12. Props / State 책임 분리표
+
+| 데이터 | Local State | Zustand | 이유 |
+|---|---:|---:|---|
+| 이메일 입력값 | O | X | 로그인 폼 내부에서만 사용 |
+| 비밀번호 입력값 | O | X | 로그인 폼 내부에서만 사용 |
+| 회원가입 폼 | O | X | 제출 전 임시 데이터 |
+| 로그인 token | X | O | 여러 보호 페이지에서 사용 |
+| 로그인 email | X | O | Header 등 여러 컴포넌트에서 사용 |
+| Survey | X | O | 검사 화면에서 서버 데이터 공유 |
+| Question 목록 | X | O | 검사 화면에서 사용 |
+| 현재 문항 번호 | O | X | 현재 페이지 UI 상태 |
+| 검사 답변 | O 또는 O(Store) | O 권장 | 검사 진행 중 여러 컴포넌트가 공유 |
+| 제출 중 상태 | O | O 가능 | 페이지 범위에서 처리 |
+| ExamResult | X | O | 결과/마이페이지에서 재사용 |
+| 검사 이력 | X | O | 마이페이지에서 서버 데이터 관리 |
+| 회원 프로필 | X | O | 마이페이지에서 관리 |
+| 통계 데이터 | X | O | 통계 페이지 서버 데이터 |
+| 모달 열림/닫힘 | O | X | 단일 UI 컴포넌트 상태 |
+| 선택된 검사 결과 | O | X | 마이페이지 UI 상태 |
+| 로딩/에러 | 상황에 따라 | O | API 요청 상태 |
+
+---
+
+# 13. 컴포넌트 Props 설계 규칙
+
+## 13.1 공통 명명 규칙
+
+### Boolean
+
+```text
+isLoading
+isSubmitting
+isEditMode
+isAuthenticated
+isFirst
+isLast
+canSubmit
+disabled
+```
+
+### 이벤트
+
+```text
+onChange
+onSubmit
+onClick
+onAnswerChange
+onPrevious
+onNext
+onLogout
+onSave
+onCancel
+onSelect
+```
+
+### 데이터
+
+```text
+survey
+questions
+question
+answers
+result
+results
+profile
+solution
+statistics
+```
+
+---
+
+## 13.2 Props 최소화
+
+Props가 지나치게 많아지는 경우 객체로 그룹화한다.
+
+```jsx
+<LoginForm
+  form={form}
+  errors={errors}
+  isSubmitting={isSubmitting}
+  onChange={handleChange}
+  onSubmit={handleSubmit}
+/>
+```
+
+검사 컴포넌트도 관련 데이터를 객체로 전달한다.
+
+```jsx
+<ResultSummary
+  result={result}
+/>
+```
+
+단, 단순 표시 컴포넌트에서는 지나친 객체화를 피한다.
+
+```jsx
+<RiskBadge riskLevel={result.riskLevel} />
+```
+
+---
+
+# 14. 검사 상태(State) 상세 설계
+
+## 14.1 KDSQ-P
+
+```js
+const initialExamState = {
+  examType: 'KDSQ_P',
+  questions: [],
+  answers: {},
+  currentQuestion: 1,
+  isSubmitting: false,
+  result: null,
+  error: null
+};
+```
+
+### 답변 예시
+
+```js
+answers = {
+  1: 1,
+  2: 0,
+  3: 1,
+  4: 1,
+  5: 0
+};
+```
+
+총점은 서버 제출 후 결과를 기준으로 사용한다.
+
+---
+
+## 14.2 KDSQ-C
+
+```js
+const detailExamState = {
+  examType: 'KDSQ_C',
+  questions: [],
+  answers: {},
+  currentQuestion: 1,
+  isSubmitting: false,
+  result: null,
+  error: null
+};
+```
+
+15문항 답변을 제출하면 결과에 다음 영역별 점수를 반영한다.
+
+```js
+{
+  memoryScore: 0,
+  otherScore: 0,
+  adlScore: 0,
+  totalScore: 0,
+  riskLevel: 'NORMAL'
+}
+```
+
+---
+
+# 15. 위험도 상태 설계
+
+## 15.1 KDSQ-P
+
+| 점수 | 처리 |
+|---:|---|
+| 0~3 | 정상 판정 및 결과 저장 |
+| 4~10 | KDSQ-C 추가 검사 |
+
+## 15.2 KDSQ-C
+
+| 점수 | RiskLevel | 화면 처리 |
+|---:|---|---|
+| 0~5 | `NORMAL` | 정상 결과 표시 |
+| 6~30 | `DEMENTIA_SUSPECTED` | 고위험군 결과 + 솔루션 표시 |
+
+> 위 기준은 도메인 설계서의 비즈니스 규칙 BR-001, BR-002 및 검사 프로세스를 그대로 반영한다.
+
+---
+
+# 16. 페이지별 컴포넌트 / Props / State 요약
+
+| 페이지 | 주요 컴포넌트 | 주요 Props | 주요 Local State | 주요 Zustand |
+|---|---|---|---|---|
+| `/login` | LoginForm | form, errors, handlers | email, password, isSubmitting | authStore |
+| `/register` | RegisterForm, ProfileFields | form, errors, handlers | form, errors, isSubmitting | authStore |
+| `/surveys` | QuestionList, QuestionItem, ExamNavigation | questions, answers, handlers | currentQuestion, modal | surveyStore, examStore |
+| `/surveys/detail` | QuestionList, QuestionItem, ExamNavigation | questions, answers, handlers | currentQuestion, modal | surveyStore, examStore |
+| `/results` | ResultSummary, RiskBadge, ScoreBreakdown, SolutionCard | result, solution, riskLevel | loading/error 정도 | examStore |
+| `/mypage` | ProfileCard, ExamHistory, ScoreTrendChart | profile, results | isEditMode, form, selectedResult | memberStore, examStore |
+| `/statistics` | StatisticsSummary, ComparisonChart, ScorePosition | statistics | selectedMetric | statisticsStore |
+
+---
+
+# 17. API / Store / Component 데이터 흐름
+
+## 17.1 로그인
+
+```text
+LoginForm
+  ↓ onSubmit
+LoginPage
+  ↓
+authStore.login()
+  ↓
+authApi.login()
+  ↓ Axios
+POST /api/auth/login
+  ↓
+JWT
+  ↓
+authStore
+  ↓
+navigate('/surveys')
+```
+
+## 17.2 KDSQ-P 검사
+
+```text
+SurveyPage
+  ↓
+surveyStore.fetchSurvey('KDSQ_P')
+  ↓
+GET /api/surveys/p
+  ↓
+QuestionList
+  ↓
+QuestionItem
+  ↓ onAnswerChange
+examStore.answers
+  ↓
+ExamNavigation.onSubmit
+  ↓
+examStore.submitPrimaryExam()
+  ↓
+POST /api/exams/p
+```
+
+## 17.3 KDSQ-C 검사
+
+```text
+KDSQ-P 4~10점
+  ↓
+/surveys/detail
+  ↓
+GET /api/surveys/c
+  ↓
+15문항 응답
+  ↓
+POST /api/exams/c
+  ↓
+ExamResult
+  ├── memoryScore
+  ├── otherScore
+  ├── adlScore
+  ├── totalScore
+  └── riskLevel
+  ↓
+/results
+```
+
+## 17.4 마이페이지
+
+```text
+MyPage
+ ├── GET /api/members/me
+ │      ↓
+ │   memberStore.profile
+ │
+ └── GET /api/exams/history
+        ↓
+     examStore.history
+        ↓
+     ExamHistory
+        +
+     ScoreTrendChart
+```
+
+## 17.5 통계
+
+```text
+StatisticsPage
+  ↓
+statisticsStore.fetchComparison()
+  ↓
+GET /api/statistics/comparison
+  ↓
+StatisticsSummary
+ComparisonChart
+ScorePosition
+```
+
+---
+
+# 18. PropTypes 설계 예시
+
+```jsx
+import PropTypes from 'prop-types';
+
+const QuestionItem = ({
+  question,
+  selectedScore,
+  onChange,
+  disabled = false,
+}) => {
+  return (
+    <div>
+      <h3>{question.questionNumber}. {question.content}</h3>
+
+      {/* 실제 선택지 UI */}
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(question.score)}
+      >
+        선택
+      </button>
+    </div>
+  );
+};
+
+QuestionItem.propTypes = {
+  question: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    surveyId: PropTypes.number.isRequired,
+    questionNumber: PropTypes.number.isRequired,
+    content: PropTypes.string.isRequired,
+    score: PropTypes.number.isRequired,
+  }).isRequired,
+  selectedScore: PropTypes.number,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+export default QuestionItem;
+```
+
+---
+
+# 19. Zustand Store 구현 템플릿
+
+## 19.1 surveyStore.js
+
+```js
+import { create } from 'zustand';
+import {
+  fetchPrimarySurveyApi,
+  fetchDetailSurveyApi,
+} from '../api/surveyApi.js';
+
+export const useSurveyStore = create((set) => ({
+  currentSurvey: null,
+  questions: [],
+  loading: false,
+  error: null,
+
+  fetchSurvey: async (examType) => {
+    set({ loading: true, error: null });
+
+    try {
+      const data =
+        examType === 'KDSQ_P'
+          ? await fetchPrimarySurveyApi()
+          : await fetchDetailSurveyApi();
+
+      set({
+        currentSurvey: data.survey,
+        questions: data.questions,
+      });
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  clearSurvey: () => {
+    set({
+      currentSurvey: null,
+      questions: [],
+      error: null,
+    });
+  },
+}));
+```
+
+## 19.2 examStore.js
+
+```js
+import { create } from 'zustand';
+import {
+  submitPrimaryExamApi,
+  submitDetailExamApi,
+  fetchExamResultApi,
+  fetchExamHistoryApi,
+} from '../api/examApi.js';
+
+export const useExamStore = create((set, get) => ({
+  answers: {},
+  currentResult: null,
+  history: [],
+  submitting: false,
+  loading: false,
+  error: null,
+
+  setAnswer: (questionId, score) => {
+    set((state) => ({
+      answers: {
+        ...state.answers,
+        [questionId]: score,
+      },
+    }));
+  },
+
+  clearAnswers: () => set({ answers: {} }),
+
+  submitPrimaryExam: async (answers) => {
+    set({ submitting: true, error: null });
+
+    try {
+      const result = await submitPrimaryExamApi(answers);
+      set({ currentResult: result });
+      return result;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    } finally {
+      set({ submitting: false });
+    }
+  },
+
+  submitDetailExam: async (answers) => {
+    set({ submitting: true, error: null });
+
+    try {
+      const result = await submitDetailExamApi(answers);
+      set({ currentResult: result });
+      return result;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    } finally {
+      set({ submitting: false });
+    }
+  },
+
+  fetchResult: async (resultId) => {
+    set({ loading: true, error: null });
+
+    try {
+      const result = await fetchExamResultApi(resultId);
+      set({ currentResult: result });
+      return result;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchHistory: async () => {
+    set({ loading: true, error: null });
+
+    try {
+      const history = await fetchExamHistoryApi();
+      set({ history });
+      return history;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  clearCurrentResult: () => set({ currentResult: null }),
+}));
+```
+
+---
+
+# 20. 컴포넌트별 구현 우선순위
+
+## 1순위 — 핵심 사용자 흐름
+
+```text
+Login
+ ↓
+Survey KDSQ-P
+ ↓
+[4점 이상]
+ ↓
+Survey KDSQ-C
+ ↓
+Result
+```
+
+구현 컴포넌트:
+
+1. `LoginPage`
+2. `LoginForm`
+3. `SurveyPage`
+4. `SurveyHeader`
+5. `ProgressIndicator`
+6. `QuestionList`
+7. `QuestionItem`
+8. `ExamNavigation`
+9. `SurveyDetailPage`
+10. `ResultPage`
+11. `ResultSummary`
+12. `RiskBadge`
+13. `ScoreBreakdown`
+14. `SolutionCard`
+
+## 2순위 — 사용자 관리 및 이력
+
+1. `RegisterPage`
+2. `RegisterForm`
+3. `ProfileFields`
+4. `MyPage`
+5. `ProfileCard`
+6. `ExamHistory`
+7. `ScoreTrendChart`
+
+## 3순위 — 통계 및 공통 UI
+
+1. `StatisticsPage`
+2. `StatisticsSummary`
+3. `ComparisonChart`
+4. `ScorePosition`
+5. `Header`
+6. `ProtectedRoute`
+7. `LoadingSpinner`
+8. `ErrorMessage`
+9. `EmptyState`
+10. `ConfirmDialog`
+
+---
+
+# 21. 최종 설계 원칙
+
+1. **도메인 기준으로 상태를 분리한다.**
+   - 인증 → `authStore`
+   - 설문 → `surveyStore`
+   - 검사 결과/이력 → `examStore`
+   - 회원 정보 → `memberStore`
+   - 통계 → `statisticsStore`
+
+2. **페이지는 조합과 흐름 제어를 담당하고, 세부 UI는 하위 컴포넌트가 담당한다.**
+
+3. **QuestionItem은 답변 데이터를 직접 전역 관리하지 않고 부모의 `onChange`를 통해 변경한다.**
+
+4. **검사 점수 및 위험도 판정은 프론트에서 임의로 재정의하지 않고 서버의 ExamResult를 기준으로 화면에 반영한다.**
+
+5. **KDSQ-P의 4점 이상 여부는 KDSQ-C 진입 흐름을 결정하는 핵심 비즈니스 규칙이다.**
+
+6. **KDSQ-C 결과는 `memoryScore`, `otherScore`, `adlScore`, `totalScore`, `riskLevel`을 중심으로 표시한다.**
+
+7. **고위험군(`DEMENTIA_SUSPECTED`)일 때 Solution 정보를 표시한다.**
+
+8. **마이페이지에서는 `Member` 정보와 `ExamResult` 이력을 분리하여 관리하고, 검사 이력은 날짜별 시계열 그래프의 데이터로 활용한다.**
+
+9. **통계 페이지에서는 전체 사용자 평균 및 본인 점수 비교를 제공하되, 위험도 판정 로직은 ExamResult의 도메인 규칙과 분리한다.**
+
+10. **Props는 최소화하고 이벤트는 `on...`, Boolean은 `is.../has.../can...` 형태로 일관되게 작성한다.**
+
+11. **모든 재사용 컴포넌트는 PropTypes를 정의한다.**
+
+12. **API 호출은 컴포넌트에 직접 작성하지 않고 `api → Zustand store → page/component` 구조를 유지한다.**
+
+---
+
+## 22. 화면설계서 API와 컴포넌트 연결표
+
+| 화면 | API | Store | 연결 컴포넌트 |
+|---|---|---|---|
+| 로그인 | `POST /api/auth/login` | `authStore` | LoginPage, LoginForm |
+| 회원가입 | `POST /api/auth/register` | `authStore` | RegisterPage, RegisterForm, ProfileFields |
+| KDSQ-P | `GET /api/surveys/p` | `surveyStore` | SurveyPage, QuestionList, QuestionItem |
+| KDSQ-P 제출 | `POST /api/exams/p` | `examStore` | ExamNavigation, SurveyPage |
+| KDSQ-C | `GET /api/surveys/c` | `surveyStore` | SurveyDetailPage, QuestionList |
+| KDSQ-C 제출 | `POST /api/exams/c` | `examStore` | ExamNavigation, SurveyDetailPage |
+| 결과 | `GET /api/exams/{id}/result` | `examStore` | ResultPage, ResultSummary, ScoreBreakdown |
+| 회원 정보 | `GET /api/members/me` | `memberStore` | MyPage, ProfileCard |
+| 검사 이력 | `GET /api/exams/history` | `examStore` | ExamHistory, ScoreTrendChart |
+| 통계 | `GET /api/statistics/comparison` | `statisticsStore` | StatisticsPage, ComparisonChart |
+
+> API의 상세 Request/Response 필드 중 일부는 현재 화면설계서에 정의되어 있지 않으므로, 본 문서에서는 도메인 객체와 화면 기능에서 확인되는 범위까지만 구체화하였다.
+
